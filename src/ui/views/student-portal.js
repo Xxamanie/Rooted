@@ -166,7 +166,7 @@ const renderStudentDashboard = (mainContentContainer) => {
             const completed = completedExams.find(c => c.examId === exam.id && c.studentId === currentStudent.id);
             const actionElements = completed
                 ? [
-                    el('span', { className: 'score-display' }, [`Score: ${completed.scaledScore.toFixed(1)}/70`]),
+                    el('span', { className: 'score-display' }, [`Score: ${completed.scaledScore.toFixed(1)}%`]),
                     el('button', { className: 'btn btn-info', disabled: true }, ['Completed'])
                   ]
                 : [el('button', { className: 'btn btn-info view-exam-btn' }, ['Take Exam'])];

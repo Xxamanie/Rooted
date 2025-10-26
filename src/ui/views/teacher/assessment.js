@@ -526,23 +526,81 @@ const submitAndGradeExam = async (examId) => {
         return;
     };
 
-    let score = 0;
+    let mcqScore = 0;
+    let maxMcqScore = 0;
+    const textQuestionsToGrade = [];
+
     exam.questions.forEach((q, index) => {
-        const selectedOption = form.querySelector(`input[name="question-${index}"]:checked`);
-        if (selectedOption && selectedOption.value === q.answer) {
-            score++;
+        if (q.type === 'mcq') {
+            maxMcqScore++;
+            const checkedRadio = form.querySelector(`input[name="question-${index}"]:checked`);
+            if (checkedRadio && checkedRadio.value === q.answer) {
+                mcqScore++;
+            }
+        } else {
+            const answerInput = form.querySelector(`[name="question-${index}"]`);
+            textQuestionsToGrade.push({
+                questionIndex: index,
+                question: q.question,
+                modelAnswer: q.answer,
+                studentAnswer: answerInput.value,
+                type: q.type
+            });
         }
     });
 
-    const scaledScore = (score / exam.questions.length) * 70;
+    let textScore = 0;
+    let maxTextScore = 0;
+
+    if (textQuestionsToGrade.length > 0) {
+        showToast('AI is grading your written answers...', 'info');
+        const gradedScores = await geminiService.gradeExamAnswers(textQuestionsToGrade);
+        
+        if (gradedScores) {
+            gradedScores.forEach(graded => {
+                textScore += graded.score;
+            });
+        }
+        // Calculate max possible score for text questions
+        textQuestionsToGrade.forEach(q => {
+            maxTextScore += (q.type === 'short_answer' ? 1 : 5); // 1 for short, 5 for para
+        });
+    }
+
+    const totalScore = mcqScore + textScore;
+    const maxScore = maxMcqScore + maxTextScore;
+    const finalPercentage = (maxScore > 0) ? (totalScore / maxScore) * 100 : 0;
+
+    // Proactively generate a study buddy message if the score is low (e.g. < 60%)
+    if (finalPercentage < 60) {
+        geminiService.generateProactiveMessage(
+            student.name,
+            exam.subject,
+            totalScore,
+            maxScore
+        ).then(message => {
+            if (message) {
+                const proactiveMessageKey = `smartschool_proactive_msg_${student.id}`;
+                localStorage.setItem(proactiveMessageKey, message);
+            }
+        });
+    }
+
+    await api.addCompletedExam({ studentId: student.id, examId: exam.id, score: totalScore, scaledScore: finalPercentage});
     
-    await api.addCompletedExam({ studentId: student.id, examId: exam.id, score: score, scaledScore: scaledScore});
-    
+    // Save to main grade book ("assessment sheet")
+    await api.updateGrade({
+        studentId: student.id,
+        term: exam.term,
+        subject: exam.subject,
+        exam: finalPercentage,
+    });
+
     const progressKey = `smartschool_examprogress_${student.id}_${exam.id}`;
     localStorage.removeItem(progressKey);
 
     hideViewExamModal();
-    showToast(`Exam submitted! Your score: ${scaledScore.toFixed(1)}/70`, 'success');
+    showToast(`Exam submitted! Your score: ${finalPercentage.toFixed(1)}%`, 'success');
     document.dispatchEvent(new CustomEvent('state-change', { detail: { rerender: true }}));
 };
 
@@ -678,17 +736,26 @@ export const renderViewExamModal = (examId) => {
         startProctoringListeners(state.currentStudent.id, exam.id);
 
         const questionElements = exam.questions.map((q, index) => {
-            const optionElements = q.options.map((option) => 
-                el('li', {}, [
-                    el('label', {}, [
-                        el('input', { type: 'radio', name: `question-${index}`, value: option, required: true, checked: savedProgress[index] === option }),
-                        el('span', {}, [option])
+            let answerElement;
+            if (q.type === 'mcq') {
+                const optionElements = q.options.map((option) => 
+                    el('li', {}, [
+                        el('label', {}, [
+                            el('input', { type: 'radio', name: `question-${index}`, value: option, required: true, checked: savedProgress[index] === option }),
+                            el('span', {}, [option])
+                        ])
                     ])
-                ])
-            );
+                );
+                answerElement = el('ul', { className: 'student-exam-options' }, optionElements);
+            } else if (q.type === 'short_answer') {
+                answerElement = el('input', { type: 'text', name: `question-${index}`, className: 'form-group', style: {marginTop: '10px'}, value: savedProgress[index] || '' });
+            } else { // paragraph
+                answerElement = el('textarea', { name: `question-${index}`, className: 'form-group', rows: 5, style: {marginTop: '10px'}, textContent: savedProgress[index] || '' });
+            }
+        
             return el('div', { className: 'student-exam-question' }, [
                 el('p', {}, [`${index + 1}. ${q.question}`]),
-                el('ul', { className: 'student-exam-options' }, optionElements)
+                answerElement
             ]);
         });
 
@@ -725,10 +792,13 @@ export const renderViewExamModal = (examId) => {
                 return;
             }
             const progress = {};
-            exam.questions.forEach((_, index) => {
-                const selectedOption = currentForm.querySelector(`input[name="question-${index}"]:checked`);
-                if (selectedOption) {
-                    progress[index] = selectedOption.value;
+            exam.questions.forEach((q, index) => {
+                if (q.type === 'mcq') {
+                    const selectedOption = currentForm.querySelector(`input[name="question-${index}"]:checked`);
+                    if (selectedOption) progress[index] = selectedOption.value;
+                } else {
+                    const textInput = currentForm.querySelector(`[name="question-${index}"]`);
+                    if (textInput) progress[index] = textInput.value;
                 }
             });
             localStorage.setItem(progressKey, JSON.stringify(progress));
@@ -736,13 +806,24 @@ export const renderViewExamModal = (examId) => {
 
     } else { // Teacher view
         const questionElements = exam.questions.map((q, index) => {
-            const optionElements = q.options.map((option) => 
-                el('li', { style: { backgroundColor: option === q.answer ? '#d4edda' : 'inherit', borderLeft: option === q.answer ? '3px solid #155724' : 'none' } }, [option])
-            );
+            let answerDisplay;
+            if (q.type === 'mcq') {
+                const optionElements = q.options?.map((option) => 
+                    el('li', { style: { backgroundColor: option === q.answer ? '#d4edda' : 'inherit', borderLeft: option === q.answer ? '3px solid #155724' : 'none' } }, [option])
+                ) || [];
+                answerDisplay = el('div', {}, [
+                    el('ul', { className: 'quiz-options' }, optionElements),
+                    el('p', { className: 'quiz-answer' }, [`Correct Answer: ${q.answer}`])
+                ]);
+            } else { // short_answer or paragraph
+                answerDisplay = el('div', {}, [
+                     el('p', { className: 'quiz-answer' }, [el('strong', {}, ['Model Answer: ']), q.answer])
+                ]);
+            }
+            
             return el('div', { className: 'quiz-question' }, [
-                el('p', {}, [el('strong', {}, [`${index + 1}. ${q.question}`])]),
-                el('ul', { className: 'quiz-options' }, optionElements),
-                el('p', { className: 'quiz-answer' }, [`Correct Answer: ${q.answer}`])
+                el('p', {}, [el('strong', {}, [`${index + 1}. (${q.type}) ${q.question}`])]),
+                answerDisplay
             ]);
         });
 
@@ -787,7 +868,7 @@ const renderTeacherExamList = (container) => {
         return el('div', { className: 'exam-item', 'data-id': exam.id }, [
             el('div', { className: 'exam-item-info' }, [
                 el('h5', {}, [exam.title]),
-                el('p', {}, [`For: ${exam.className} | Questions: ${exam.questions.length}`])
+                el('p', {}, [`For: ${exam.className} | Questions: ${exam.questions?.length ?? 0}`])
             ]),
             el('div', { className: 'exam-item-actions' }, [monitorBtn, viewBtn, removeBtn])
         ]);
@@ -802,15 +883,24 @@ export const renderExaminationView = () => {
         e.preventDefault();
         const form = e.target;
         const topic = form.querySelector('#exam-topic').value;
-        const numQuestions = form.querySelector('#exam-num-questions').value;
-        
+        const questionCounts = {
+            mcq: parseInt(form.querySelector('#exam-num-mcq').value, 10) || 0,
+            short_answer: parseInt(form.querySelector('#exam-num-short').value, 10) || 0,
+            paragraph: parseInt(form.querySelector('#exam-num-para').value, 10) || 0,
+        };
+        const totalQuestions = questionCounts.mcq + questionCounts.short_answer + questionCounts.paragraph;
+
         if (!topic) {
             showToast('Please enter a topic.', 'error');
             return;
         }
+        if (totalQuestions === 0) {
+            showToast('Please specify at least one question.', 'error');
+            return;
+        }
         
         showSpinner('#exam-creation-card');
-        const questions = await geminiService.generateExamQuestions(topic, numQuestions);
+        const questions = await geminiService.generateExamQuestions(topic, questionCounts);
         hideSpinner('#exam-creation-card');
         
         if (questions) {
@@ -862,25 +952,31 @@ export const renderExaminationView = () => {
         ]),
          el('div', { className: 'form-group' }, [
             el('label', {htmlFor: 'exam-instructions'}, ['Instructions']),
-            el('textarea', { id: 'exam-instructions', rows: 2, placeholder: 'e.g., Answer all questions. Each question carries equal marks.' })
+            el('textarea', { id: 'exam-instructions', rows: 2, placeholder: 'e.g., Answer all questions.' })
          ]),
         el('hr', { style: { margin: '20px 0' } }),
         el('h4', { style: {color: '#555'} }, ['AI Question Generation']),
+        el('div', { className: 'form-group' }, [
+            el('label', {htmlFor: 'exam-topic'}, ['Topic for Questions']),
+            el('input', { type: 'text', id: 'exam-topic', required: true, placeholder: 'e.g., Laws of Motion' })
+        ]),
         el('div', { className: 'form-row' }, [
             el('div', { className: 'form-group' }, [
-                el('label', {htmlFor: 'exam-topic'}, ['Topic for Questions']),
-                el('input', { type: 'text', id: 'exam-topic', required: true, placeholder: 'e.g., Laws of Motion' })
-             ]),
-             el('div', { className: 'form-group' }, [
-                el('label', {htmlFor: 'exam-num-questions'}, ['Number of Questions']),
-                el('select', {id: 'exam-num-questions'}, [
-                    el('option', {}, ['5']), el('option', {selected: true}, ['10']), el('option', {}, ['15']), el('option', {}, ['20'])
-                ])
-             ]),
-             el('div', { className: 'form-group' }, [
-                el('label', {htmlFor: 'exam-duration'}, ['Duration (Minutes)']),
-                el('input', { type: 'number', id: 'exam-duration', value: '20' })
-             ]),
+                el('label', {htmlFor: 'exam-num-mcq'}, ['Number of MCQs']),
+                el('input', {type: 'number', id: 'exam-num-mcq', value: '5', min: '0'})
+            ]),
+            el('div', { className: 'form-group' }, [
+                el('label', {htmlFor: 'exam-num-short'}, ['Short Answer']),
+                el('input', {type: 'number', id: 'exam-num-short', value: '3', min: '0'})
+            ]),
+            el('div', { className: 'form-group' }, [
+                el('label', {htmlFor: 'exam-num-para'}, ['Paragraph']),
+                el('input', {type: 'number', id: 'exam-num-para', value: '2', min: '0'})
+            ]),
+        ]),
+        el('div', { className: 'form-group' }, [
+           el('label', {htmlFor: 'exam-duration'}, ['Duration (Minutes)']),
+           el('input', { type: 'number', id: 'exam-duration', value: '30', min: '1' })
         ]),
         el('button', { type: 'submit', className: 'btn' }, ['Generate & Create Exam'])
     ]);

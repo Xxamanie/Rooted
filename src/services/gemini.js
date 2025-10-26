@@ -192,21 +192,34 @@ export const geminiService = {
             model: 'gemini-2.5-flash',
             history: state.chatHistory.slice(0, -1),
              config: {
-                systemInstruction: `You are a friendly and encouraging study buddy for a student. Your goal is to help them understand concepts, not just give them answers. Always guide them through problems step-by-step. The student's name is ${state.currentStudent?.name}. The student is in class ${state.currentStudent?.class}.`
+                systemInstruction: `You are Study Buddy, an AI assistant designed to be a friendly, patient, and encouraging tutor for high school students.
+- Your primary goal is to help students understand concepts, not just give them the answer. Guide them with step-by-step explanations and Socratic questioning.
+- Always use markdown (like **bold** for key terms) to make your explanations clear and easy to read.
+- Keep your responses concise and break down complex topics into smaller, digestible parts.
+- End your responses with an open-ended question to encourage further conversation, like "Does that make sense?" or "What would you like to explore next?".
+- The student you are helping is ${state.currentStudent?.name}, who is in ${state.currentStudent?.class}. Address them by their name occasionally to build rapport.`
             }
         });
         setState({ activeChat: chat });
         return chat;
     },
 
-    async generateExamQuestions(topic, numQuestions) {
+    async generateExamQuestions(topic, questionCounts) {
         const ai = getAiClient();
         if (!ai) return null;
+
+        const { mcq, short_answer, paragraph } = questionCounts;
+        const prompt = `Generate an exam on the topic: "${topic}".
+        It should contain:
+        - ${mcq} multiple-choice questions (type: 'mcq'). For these, provide 4 options and an answer.
+        - ${short_answer} short-answer questions (type: 'short_answer'). For these, provide a brief, ideal answer. options should be null.
+        - ${paragraph} paragraph-style questions (type: 'paragraph'). For these, provide a model paragraph answer or a detailed rubric. options should be null.
+        Ensure the JSON output adheres to the schema exactly. The 'options' property must be null for non-mcq questions.`;
 
         try {
              const response = await ai.models.generateContent({
                 model: "gemini-2.5-flash",
-                contents: `Generate a multiple-choice exam with ${numQuestions} questions on the topic: "${topic}". For each question, provide 4 options and indicate the correct answer.`,
+                contents: prompt,
                 config: {
                     responseMimeType: "application/json",
                     responseSchema: {
@@ -214,15 +227,15 @@ export const geminiService = {
                         properties: {
                             questions: {
                                 type: Type.ARRAY,
-                                description: `An array of ${numQuestions} multiple-choice exam questions.`,
                                 items: {
                                     type: Type.OBJECT,
                                     properties: {
+                                        type: { type: Type.STRING },
                                         question: { type: Type.STRING },
-                                        options: { type: Type.ARRAY, items: { type: Type.STRING } },
+                                        options: { type: Type.ARRAY, items: { type: Type.STRING }, nullable: true },
                                         answer: { type: Type.STRING }
                                     },
-                                    required: ["question", "options", "answer"],
+                                    required: ["type", "question", "answer"],
                                 }
                             }
                         },
@@ -275,6 +288,53 @@ export const geminiService = {
         }
     },
 
+    async gradeExamAnswers(questionsAndAnswers) {
+        const ai = getAiClient();
+        if (!ai) return null;
+        
+        const prompt = `You are an AI teaching assistant. Grade the student's answers for the following questions.
+        Compare the student's answer to the provided model answer.
+        - For 'short_answer' type, assign a score of 1 for a correct/very similar answer, and 0 otherwise.
+        - For 'paragraph' type, assign a score from 0 to 5 based on relevance, detail, and accuracy compared to the model answer.
+        Return a JSON object with an array of scores, adhering to the schema.
+
+        Questions and Student Answers:
+        ${JSON.stringify(questionsAndAnswers)}
+        `;
+
+        try {
+            const response = await ai.models.generateContent({
+                model: "gemini-2.5-flash",
+                contents: prompt,
+                config: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: Type.OBJECT,
+                        properties: {
+                            scores: {
+                                type: Type.ARRAY,
+                                items: {
+                                    type: Type.OBJECT,
+                                    properties: {
+                                        questionIndex: { type: Type.NUMBER },
+                                        score: { type: Type.NUMBER }
+                                    },
+                                    required: ["questionIndex", "score"]
+                                }
+                            }
+                        },
+                        required: ["scores"]
+                    }
+                }
+            });
+            return JSON.parse(response.text).scores;
+        } catch (error) {
+            console.error("AI exam grading error:", error);
+            showToast("AI failed to grade written answers. They will be marked as 0.", "error");
+            return null;
+        }
+    },
+
     async generateDifferentiatedMaterials(topic) {
         const ai = getAiClient();
         if (!ai) return null;
@@ -311,5 +371,27 @@ export const geminiService = {
              showToast("Failed to generate materials. Please check your API key.", "error");
              return null;
         }
-    }
+    },
+
+    async generateProactiveMessage(studentName, subject, score, totalQuestions) {
+        const ai = getAiClient();
+        if (!ai) return null;
+
+        const prompt = `A student named ${studentName} just completed an exam in ${subject} and scored ${score} out of ${totalQuestions}.
+        Write a short, friendly, and encouraging message (2-3 sentences) for their AI Study Buddy to display when they next open it.
+        The message should acknowledge their effort, gently offer help with the topic, and avoid sounding judgmental.
+        Frame it as the Study Buddy speaking, and start with a friendly emoji like ✨ or 👋.`;
+
+        try {
+            const response = await ai.models.generateContent({
+                model: "gemini-2.5-flash",
+                contents: prompt,
+            });
+            return response.text;
+        } catch (error) {
+            console.error("Error generating proactive message:", error);
+            // Don't show a toast for this background task, just log it.
+            return null;
+        }
+    },
 };
