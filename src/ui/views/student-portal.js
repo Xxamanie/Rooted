@@ -10,9 +10,9 @@ import { geminiService } from "../../services/gemini.js";
 
 // Note: In a larger app, modals would be handled by a global modal service.
 // For simplicity, we are re-declaring them here as the student portal is a separate "app".
-import { renderViewExamModal, hideViewExamModal } from "./teacher/assessment.js";
-import { renderStudentViewEssayModal, hideViewEssayModal } from "./teacher/classroom.js";
-import { renderReportCard } from "./teacher/reports.js";
+import { renderViewExamModal, hideViewExamModal } from "./assessment.js";
+import { renderStudentViewEssayModal, hideViewEssayModal } from "./classroom.js";
+import { renderReportCard } from "./reports.js";
 
 
 const renderChatHistory = (container, chatHistory) => {
