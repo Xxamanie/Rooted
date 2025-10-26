@@ -4,8 +4,8 @@
  */
 
 import { el, renderChildren, simpleMarkdownToNodes, showSpinner, hideSpinner } from "../../dom-utils.js";
-import { getState } from "../../state.js";
-import { geminiService } from "../../services/gemini.js";
+import { getState } from "../../../state.js";
+import { geminiService } from "../../../services/gemini.js";
 
 export const renderAnalyticsView = () => {
     const state = getState();

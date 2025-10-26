@@ -4,9 +4,9 @@
  */
 
 import { el, renderChildren, simpleMarkdownToNodes, showSpinner, hideSpinner } from "../../dom-utils.js";
-import { getState } from "../../state.js";
-import { geminiService } from "../../services/gemini.js";
-import { getLetterGrade } from "../../utils.js";
+import { getState } from "../../../state.js";
+import { geminiService } from "../../../services/gemini.js";
+import { getLetterGrade } from "../../../utils.js";
 
 const populateStudentSelector = (selectElement) => {
     const { students } = getState();
@@ -17,7 +17,7 @@ const populateStudentSelector = (selectElement) => {
         .sort((a,b) => a.name.localeCompare(b.name))
         .forEach(student => {
             selectElement.appendChild(el('option', { value: student.id, textContent: `${student.name} (${student.id})`}));
-    });
+        });
     if (originalValue) selectElement.value = originalValue;
 };
 

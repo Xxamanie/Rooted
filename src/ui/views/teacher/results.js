@@ -4,8 +4,8 @@
  */
 
 import { el, renderChildren, showToast } from "../../dom-utils.js";
-import { getState, setState } from "../../state.js";
-import { api } from "../../api.js";
+import { getState, setState } from "../../../state.js";
+import { api } from "../../../api.js";
 
 const populateStudentSelector = (selectElement) => {
     const { students } = getState();
@@ -16,7 +16,7 @@ const populateStudentSelector = (selectElement) => {
         .sort((a,b) => a.name.localeCompare(b.name))
         .forEach(student => {
             selectElement.appendChild(el('option', { value: student.id, textContent: `${student.name} (${student.id})`}));
-    });
+        });
     if (originalValue) selectElement.value = originalValue;
 };
 

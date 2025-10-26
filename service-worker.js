@@ -1,3 +1,4 @@
+
 const CACHE_NAME = 'smartschool-v4'; // Bumped version to ensure new SW is installed
 const urlsToCache = [
   '/',

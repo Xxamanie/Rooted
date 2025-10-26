@@ -4,8 +4,8 @@
  */
 
 import { el, renderChildren, showToast } from "../../dom-utils.js";
-import { getState } from "../../state.js";
-import { api } from "../../api.js";
+import { getState } from "../../../state.js";
+import { api } from "../../../api.js";
 
 const renderRecordList = (container) => {
     const { recordsOfWork } = getState();

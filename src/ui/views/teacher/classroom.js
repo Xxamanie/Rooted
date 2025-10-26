@@ -4,9 +4,9 @@
  */
 
 import { el, renderChildren, simpleMarkdownToNodes, showToast, showSpinner, hideSpinner } from "../../dom-utils.js";
-import { getState, setState } from "../../state.js";
-import { api } from "../../api.js";
-import { geminiService } from "../../services/gemini.js";
+import { getState, setState } from "../../../state.js";
+import { api } from "../../../api.js";
+import { geminiService } from "../../../services/gemini.js";
 
 const populateClassSelector = (selectElement) => {
     const { students } = getState();
