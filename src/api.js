@@ -43,6 +43,7 @@ export const api = {
                 parentAccessCodes: _get('smartschool_parentaccesscodes') || [],
                 questionBank: _get('smartschool_questionbank') || [],
                 timetable: _get('smartschool_timetable') || null,
+                tasks: _get('smartschool_tasks') || [],
                 currentUser: _get('smartschool_currentUser') || null,
                 currentStudent: _get('smartschool_currentStudent') || null,
                 currentParent: _get('smartschool_currentParent') || null,
@@ -353,6 +354,37 @@ export const api = {
             const updatedBank = state.questionBank.filter(q => q.id !== id);
             _set('smartschool_questionbank', updatedBank);
             setState({ questionBank: updatedBank });
+        });
+    },
+
+    addTask(text) {
+        return _simulateNetwork(() => {
+            const state = getState();
+            const newTask = { id: Date.now(), text, completed: false };
+            const updatedTasks = [...state.tasks, newTask];
+            _set('smartschool_tasks', updatedTasks);
+            setState({ tasks: updatedTasks });
+            return newTask;
+        });
+    },
+
+    updateTaskStatus(id, completed) {
+        return _simulateNetwork(() => {
+            const state = getState();
+            const updatedTasks = state.tasks.map(task => 
+                task.id === id ? { ...task, completed } : task
+            );
+            _set('smartschool_tasks', updatedTasks);
+            setState({ tasks: updatedTasks });
+        });
+    },
+
+    removeTask(id) {
+        return _simulateNetwork(() => {
+            const state = getState();
+            const updatedTasks = state.tasks.filter(task => task.id !== id);
+            _set('smartschool_tasks', updatedTasks);
+            setState({ tasks: updatedTasks });
         });
     },
     

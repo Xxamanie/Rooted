@@ -1,11 +1,12 @@
 
+
 const CACHE_NAME = 'smartschool-v4'; // Bumped version to ensure new SW is installed
 const urlsToCache = [
   '/',
   '/index.html',
   '/index.css',
   '/manifest.json',
-  '/src/main.js',
+  '/index.tsx',
   '/src/api.js',
   '/src/router.js',
   '/src/services/gemini.js',

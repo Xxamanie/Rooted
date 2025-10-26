@@ -21,6 +21,7 @@ let state = {
     parentAccessCodes: [],
     questionBank: [],
     timetable: null,
+    tasks: [],
     currentUser: null,
     currentStudent: null,
     currentParent: null,
