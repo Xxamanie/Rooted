@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { el, renderChildren, simpleMarkdownToNodes, showToast, showSpinner, hideSpinner } from "../../dom-utils.js";
-import { getState, setState } from "../../../state.js";
-import { api } from "../../../api.js";
-import { geminiService } from "../../../services/gemini.js";
+import { el, renderChildren, simpleMarkdownToNodes, showToast, showSpinner, hideSpinner } from "../dom-utils.js";
+import { getState, setState } from "../../state.js";
+import { api } from "../../api.js";
+import { geminiService } from "../../services/gemini.js";
 
 const populateClassSelector = (selectElement) => {
     const { students } = getState();
@@ -71,7 +71,7 @@ const renderAnnouncements = (container) => {
 // Functions related to essay modals
 let essayModal;
 
-const hideViewEssayModal = () => {
+export const hideViewEssayModal = () => {
     if (essayModal) {
         essayModal.classList.remove('visible');
         setTimeout(() => essayModal.remove(), 300);

@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { el, renderChildren, showToast, showSpinner, hideSpinner } from "../../dom-utils.js";
-import { getState, setState } from "../../../state.js";
-import { api } from "../../../api.js";
-import { geminiService } from "../../../services/gemini.js";
+import { el, renderChildren, showToast, showSpinner, hideSpinner } from "../dom-utils.js";
+import { getState, setState } from "../../state.js";
+import { api } from "../../api.js";
+import { geminiService } from "../../services/gemini.js";
 
 let cameraModalStream = null;
 

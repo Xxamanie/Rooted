@@ -9,18 +9,18 @@ import { api } from "../../api.js";
 import { navigateTo, renderCurrentView, registerView, getCurrentView } from "../../router.js";
 
 // Import view renderers
-import { renderDashboardView } from "./dashboard.js";
-import { renderAnalyticsView } from "./analytics.js";
-import { renderAdminView } from "./admin.js";
-import { renderClassroomView } from "./classroom.js";
-import { renderRecordsView } from "./records.js";
-import { renderSchemeView } from "./scheme.js";
-import { renderAssessmentView, renderExaminationView } from "./assessment.js";
-import { renderReportsView } from "./reports.js";
-import { renderTimetableView } from "./timetable.js";
-import { renderProgressView } from "./progress.js";
-import { renderTuitionView } from "./tuition.js";
-import { renderResultsView } from "./results.js";
+import { renderDashboardView } from "./teacher/dashboard.js";
+import { renderAnalyticsView } from "./teacher/analytics.js";
+import { renderAdminView } from "./teacher/admin.js";
+import { renderClassroomView } from "./teacher/classroom.js";
+import { renderRecordsView } from "./teacher/records.js";
+import { renderSchemeView } from "./teacher/scheme.js";
+import { renderAssessmentView, renderExaminationView } from "./teacher/assessment.js";
+import { renderReportsView } from "./teacher/reports.js";
+import { renderTimetableView } from "./teacher/timetable.js";
+import { renderProgressView } from "./teacher/progress.js";
+import { renderTuitionView } from "./teacher/tuition.js";
+import { renderResultsView } from "./teacher/results.js";
 
 
 let apiKeyModal;

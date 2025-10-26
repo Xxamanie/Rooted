@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { el } from "../../dom-utils.js";
+import { el } from "../dom-utils.js";
 
 export const renderDashboardView = () => {
     return el('div', { className: 'tab-content' }, [

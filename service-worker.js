@@ -1,4 +1,4 @@
-const CACHE_NAME = 'smartschool-v2'; // Bumped version to ensure new SW is installed
+const CACHE_NAME = 'smartschool-v4'; // Bumped version to ensure new SW is installed
 const urlsToCache = [
   '/',
   '/index.html',
@@ -15,18 +15,18 @@ const urlsToCache = [
   '/src/ui/views/parent-portal.js',
   '/src/ui/views/student-portal.js',
   '/src/ui/views/teacher-shell.js',
-  '/src/ui/views/admin.js',
-  '/src/ui/views/analytics.js',
-  '/src/ui/views/assessment.js',
-  '/src/ui/views/classroom.js',
-  '/src/ui/views/dashboard.js',
-  '/src/ui/views/progress.js',
-  '/src/ui/views/records.js',
-  '/src/ui/views/reports.js',
-  '/src/ui/views/results.js',
-  '/src/ui/views/scheme.js',
-  '/src/ui/views/timetable.js',
-  '/src/ui/views/tuition.js'
+  '/src/ui/views/teacher/admin.js',
+  '/src/ui/views/teacher/analytics.js',
+  '/src/ui/views/teacher/assessment.js',
+  '/src/ui/views/teacher/classroom.js',
+  '/src/ui/views/teacher/dashboard.js',
+  '/src/ui/views/teacher/progress.js',
+  '/src/ui/views/teacher/records.js',
+  '/src/ui/views/teacher/reports.js',
+  '/src/ui/views/teacher/results.js',
+  '/src/ui/views/teacher/scheme.js',
+  '/src/ui/views/teacher/timetable.js',
+  '/src/ui/views/teacher/tuition.js'
 ];
 
 self.addEventListener('install', event => {
@@ -34,7 +34,9 @@ self.addEventListener('install', event => {
     caches.open(CACHE_NAME)
       .then(cache => {
         console.log('Opened cache');
-        return cache.addAll(urlsToCache);
+        // Use addAll with a request object that bypasses the cache on the first install
+        const requests = urlsToCache.map(url => new Request(url, {cache: 'reload'}));
+        return cache.addAll(requests);
       })
   );
 });
@@ -61,7 +63,27 @@ self.addEventListener('fetch', event => {
         if (response) {
           return response;
         }
-        return fetch(event.request);
+        return fetch(event.request).then(
+            (response) => {
+                // Check if we received a valid response
+                if (!response || response.status !== 200 || response.type !== 'basic') {
+                    return response;
+                }
+
+                // IMPORTANT: Clone the response. A response is a stream
+                // and because we want the browser to consume the response
+                // as well as the cache consuming the response, we need
+                // to clone it so we have two streams.
+                var responseToCache = response.clone();
+
+                caches.open(CACHE_NAME)
+                    .then((cache) => {
+                        cache.put(event.request, responseToCache);
+                    });
+
+                return response;
+            }
+        );
       }
     )
   );

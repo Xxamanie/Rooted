@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { el, renderChildren, createConfirmationModal, showToast } from "../../dom-utils.js";
-import { getState, setState } from "../../../state.js";
-import { api } from "../../../api.js";
-import { getISOWeekString } from "../../../utils.js";
+import { el, renderChildren, createConfirmationModal, showToast } from "../dom-utils.js";
+import { getState, setState } from "../../state.js";
+import { api } from "../../api.js";
+import { getISOWeekString } from "../../utils.js";
 
 const renderStaffList = () => {
     const state = getState();
