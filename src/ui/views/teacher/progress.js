@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { el, renderChildren, simpleMarkdownToNodes, showSpinner, hideSpinner } from "../dom-utils.js";
+import { el, renderChildren, simpleMarkdownToNodes, showSpinner, hideSpinner } from "../../dom-utils.js";
 import { getState } from "../../state.js";
 import { geminiService } from "../../services/gemini.js";
 import { getLetterGrade } from "../../utils.js";

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { el, renderChildren, showToast, showSpinner, hideSpinner } from "../dom-utils.js";
+import { el, renderChildren, showToast, showSpinner, hideSpinner } from "../../dom-utils.js";
 import { getState, setState } from "../../state.js";
 import { api } from "../../api.js";
 import { geminiService } from "../../services/gemini.js";
@@ -407,7 +407,8 @@ export const renderAssessmentView = () => {
                             el('option', {}, ['10'])
                         ])
                     ]),
-                    el('button', { className: 'btn' }, ['Generate Quiz'])
+                    el('button', { className: 'btn' }, ['Generate Quiz']),
+                    el('div', { id: 'quiz-results-container', style: { marginTop: '20px' } })
                 ]),
                 el('div', { id: 'plan-card', className: 'assessment-card', style: { position: 'relative' } }, [
                      el('div', { className: 'spinner-overlay' }, [el('div', { className: 'spinner' })]),
@@ -426,7 +427,9 @@ export const renderAssessmentView = () => {
                             el('input', { type: 'number', id: 'plan-weeks', value: '2' })
                         ])
                     ]),
-                     el('button', { className: 'btn' }, ['Generate Plan'])
+                     el('button', { className: 'btn' }, ['Generate Plan']),
+                     el('div', { id: 'plan-results-container', className: 'ai-results' }),
+                     el('div', { id: 'differentiated-materials-container', className: 'ai-results' })
                 ])
             ])
         ])
