@@ -4,13 +4,33 @@ import { renderLoginView } from './src/ui/views/login.js';
 import { renderTeacherShell } from './src/ui/views/teacher-shell.js';
 import { renderStudentPortal } from './src/ui/views/student-portal.js';
 import { renderParentPortal } from './src/ui/views/parent-portal.js';
+import { el } from './src/ui/dom-utils.js';
 
 const appContainer = document.getElementById('app');
+
+const renderBroadcastBanner = () => {
+    const broadcast = api.getBroadcastMessage();
+    if (broadcast) {
+        const banner = el('div', { className: 'broadcast-banner' }, [
+            el('span', {}, [broadcast.message]),
+            el('button', { className: 'close-broadcast-btn' }, ['×'])
+        ]);
+        banner.querySelector('.close-broadcast-btn').addEventListener('click', () => {
+            api.clearBroadcastMessage();
+            banner.remove();
+        });
+        return banner;
+    }
+    return null;
+}
 
 const renderApp = () => {
     const state = getState();
     if (!appContainer) return;
     appContainer.innerHTML = '';
+
+    const banner = renderBroadcastBanner();
+    if (banner) appContainer.appendChild(banner);
 
     if (state.currentUser) {
         appContainer.appendChild(renderTeacherShell());
@@ -25,20 +45,20 @@ const renderApp = () => {
 
 const init = async () => {
     const loadedState = await api.loadInitialState();
-    setState(loadedState);
-
     const apiKey = localStorage.getItem('smartschool_apiKey');
     const isLiveMode = localStorage.getItem('smartschool_liveMode') === 'true';
-    setState({ 
-        ...getState(),
+
+    // Combine all initial state setup into a single call for efficiency.
+    setState({
+        ...loadedState,
         apiKey,
         isLiveMode,
     });
     
     document.addEventListener('state-change', (e) => {
-        // Fix: Property 'detail' does not exist on type 'Event'. Cast to CustomEvent.
         const detail = (e as CustomEvent).detail;
-        if (detail.rerender) {
+        // Use optional chaining for robustness in case detail is undefined.
+        if (detail?.rerender) {
             renderApp();
         }
     });

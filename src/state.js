@@ -4,6 +4,7 @@
  */
 
 let state = {
+    schools: [],
     staff: [],
     students: [],
     parents: [],
@@ -17,6 +18,7 @@ let state = {
     essayAssignments: [],
     essaySubmissions: [],
     grades: [],
+    lessonPlans: [],
     accessCodes: [],
     parentAccessCodes: [],
     questionBank: [],

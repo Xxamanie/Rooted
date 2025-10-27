@@ -1,3 +1,5 @@
+
+
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
 * {
@@ -22,6 +24,8 @@
     --success-color: #28a745;
     --shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
     --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --creator-purple-dark: #4a148c;
+    --creator-purple-light: #6a1b9a;
 }
 
 body {
@@ -119,7 +123,7 @@ body {
     color: white;
     padding: 20px 10px;
     box-shadow: 3px 0 15px rgba(0,0,0,0.1);
-    transition: transform 0.3s ease, padding 0.3s ease;
+    transition: transform 0.3s ease, padding 0.3s ease, background-color 0.3s ease;
     height: 100%;
     overflow-y: auto;
     z-index: 1000;
@@ -198,6 +202,27 @@ body {
     background: var(--accent-gold);
     color: var(--text-dark);
     font-weight: 600;
+}
+
+/* --- Creator Mode Styles --- */
+#teacher-app.creator-mode .sidebar {
+    background-color: var(--creator-purple-dark);
+}
+#teacher-app.creator-mode .logo-section {
+    border-bottom-color: var(--creator-purple-light);
+}
+#teacher-app.creator-mode .logo {
+    background: var(--creator-purple-light);
+}
+#teacher-app.creator-mode .nav-link:hover {
+    background: var(--creator-purple-light);
+}
+#teacher-app.creator-mode .logo-text::before {
+    content: 'Creator Mode';
+    color: var(--accent-gold);
+}
+#teacher-app.creator-mode .logo-text {
+    font-size: 0; /* Hide original text */
 }
 
 .nav-icon {
@@ -887,6 +912,7 @@ body {
     font-size: 12px;
     font-weight: 600;
     text-transform: uppercase;
+    white-space: nowrap;
 }
 
 .status-paid {
@@ -897,6 +923,57 @@ body {
 .status-owing {
     background-color: #f8d7da;
     color: #721c24;
+}
+
+.status-badge.status-active {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-badge.status-expired {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.status-badge.status-1st-term-paid {
+    background-color: #cce5ff; /* Light Blue */
+    color: #004085;
+}
+
+.status-badge.status-2nd-term-paid {
+    background-color: #d1ecf1; /* Light Cyan */
+    color: #0c5460;
+}
+
+.status-badge.status-3rd-term-paid {
+    background-color: #d4edda; /* Light Green */
+    color: #155724;
+}
+
+.editable-cost-cell, .editable-pricing-cell {
+    cursor: pointer;
+}
+.editable-cost-cell:hover, .editable-pricing-cell:hover {
+    background-color: #f1f3f5;
+}
+.editable-cost-cell input, .editable-pricing-cell input {
+    width: 80px;
+    padding: 4px 6px;
+    border-radius: 4px;
+    border: 1px solid var(--primary-green-light);
+    text-align: right;
+}
+.editable-pricing-inputs {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.editable-pricing-inputs label {
+    font-size: 12px;
+    font-weight: 600;
+}
+.editable-pricing-inputs input {
+    width: 60px;
 }
 
 /* New/Updated Staff Activity Status styles */
@@ -2362,4 +2439,60 @@ input:checked + .switch:before {
 .action-cell {
     display: flex;
     gap: 5px;
+}
+
+/* Broadcast Banner */
+.broadcast-banner {
+    background-color: var(--info-color);
+    color: white;
+    padding: 12px 20px;
+    text-align: center;
+    font-weight: 500;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    position: relative;
+    z-index: 1002; /* Above sidebar toggle */
+}
+.close-broadcast-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0 5px;
+}
+.close-broadcast-btn:hover {
+    opacity: 0.8;
+}
+
+/* Admin Banner */
+.admin-banner {
+    background-color: var(--accent-gold);
+    color: var(--text-dark);
+    padding: 12px 20px;
+    margin-bottom: 25px;
+    border-radius: 12px;
+    text-align: center;
+    font-weight: 500;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    box-shadow: var(--shadow);
+}
+.close-admin-btn {
+    background: none;
+    border: none;
+    color: var(--text-dark);
+    font-size: 24px;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0 5px;
+    opacity: 0.7;
+}
+.close-admin-btn:hover {
+    opacity: 1;
 }

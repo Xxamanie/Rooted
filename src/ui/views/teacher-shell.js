@@ -21,6 +21,8 @@ import { renderTimetableView } from "./teacher/timetable.js";
 import { renderProgressView } from "./teacher/progress.js";
 import { renderTuitionView } from "./teacher/tuition.js";
 import { renderResultsView } from "./teacher/results.js";
+import { renderCreatorView } from "./teacher/creator.js";
+import { renderLessonPlansView } from "./teacher/lesson-plans.js";
 
 
 let apiKeyModal;
@@ -75,24 +77,33 @@ const createApiKeyModal = () => {
 
 const createSidebar = () => {
     const state = getState();
+    const isCreator = state.currentUser?.role === 'Creator';
+    const isAdmin = state.currentUser?.role === 'Administrator';
+
     const navItems = [
-        { section: 'dashboard', icon: '🏠', text: 'Dashboard', adminOnly: false },
+        ...(isCreator ? [{ section: 'creator', icon: '👑', text: 'Creator Panel', exclusive: true }] : []),
+        { section: 'dashboard', icon: '🏠', text: 'Dashboard' },
         { section: 'analytics', icon: '📊', text: 'Analytics', adminOnly: true },
         { section: 'admin', icon: '⚙️', text: 'Admin Panel', adminOnly: true },
-        { section: 'classroom', icon: '🏫', text: 'Virtual Classroom', adminOnly: false },
-        { section: 'records', icon: '📋', text: 'Record of Work', adminOnly: false },
-        { section: 'scheme', icon: '📚', text: 'Scheme of Work', adminOnly: false },
-        { section: 'assessment', icon: '✍️', text: 'Assessment Center', adminOnly: false },
-        { section: 'examination', icon: '📝', text: 'Online Examination', adminOnly: false },
-        { section: 'reports', icon: '🎓', text: 'Report Cards', adminOnly: false },
-        { section: 'timetable', icon: '📅', text: 'Timetable Generator', adminOnly: false },
-        { section: 'progress', icon: '📈', text: 'Progress Tracker', adminOnly: false },
-        { section: 'tuition', icon: '💰', text: 'Tuition', adminOnly: false },
-        { section: 'results', icon: '🏅', text: 'Results Access', adminOnly: false },
+        { section: 'classroom', icon: '🏫', text: 'Virtual Classroom' },
+        { section: 'records', icon: '📋', text: 'Record of Work' },
+        { section: 'scheme', icon: '📚', text: 'Scheme of Work' },
+        { section: 'lesson-plans', icon: '🗓️', text: 'Lesson Plans' },
+        { section: 'assessment', icon: '✍️', text: 'Assessment Center' },
+        { section: 'examination', icon: '📝', text: 'Online Examination' },
+        { section: 'reports', icon: '🎓', text: 'Report Cards' },
+        { section: 'timetable', icon: '📅', text: 'Timetable Generator' },
+        { section: 'progress', icon: '📈', text: 'Progress Tracker' },
+        { section: 'tuition', icon: '💰', text: 'Tuition' },
+        { section: 'results', icon: '🏅', text: 'Results Access' },
     ];
     
     const navLinks = navItems
-        .filter(item => !item.adminOnly || (item.adminOnly && state.currentUser?.role === 'Administrator'))
+        .filter(item => {
+            if (isCreator) return true; // Creator sees all
+            if (item.exclusive) return false;
+            return !item.adminOnly || isAdmin;
+        })
         .map(item => el('li', { className: 'nav-item' }, [
             el('a', { className: 'nav-link', 'data-section': item.section }, [
                 el('span', { className: 'nav-icon' }, [item.icon]),
@@ -124,17 +135,36 @@ const createSidebar = () => {
     return sidebar;
 };
 
+const renderAdminBanner = () => {
+    const adminMessage = api.getAdminMessage();
+    if (adminMessage) {
+        const banner = el('div', { className: 'admin-banner' }, [
+            el('span', {}, [adminMessage.message]),
+            el('button', { className: 'close-admin-btn' }, ['×'])
+        ]);
+        banner.querySelector('.close-admin-btn').addEventListener('click', () => {
+            api.clearAdminMessage();
+            banner.remove();
+        });
+        return banner;
+    }
+    return null;
+}
 
 export const renderTeacherShell = () => {
     const state = getState();
+    const isCreator = state.currentUser?.role === 'Creator';
+    const isAdmin = state.currentUser?.role === 'Administrator';
 
     // Register all the views with the router
+    registerView('creator', renderCreatorView);
     registerView('dashboard', renderDashboardView);
     registerView('analytics', renderAnalyticsView);
     registerView('admin', renderAdminView);
     registerView('classroom', renderClassroomView);
     registerView('records', renderRecordsView);
     registerView('scheme', renderSchemeView);
+    registerView('lesson-plans', renderLessonPlansView);
     registerView('assessment', renderAssessmentView);
     registerView('examination', renderExaminationView);
     registerView('reports', renderReportsView);
@@ -208,9 +238,17 @@ export const renderTeacherShell = () => {
         el('main', { className: 'content-area' }, [contentBody])
     ]);
     
+    if (isAdmin) {
+        const banner = renderAdminBanner();
+        if (banner) {
+            // Prepend to mainContent so it appears above the header
+            mainContent.prepend(banner);
+        }
+    }
+    
     const sidebarToggle = el('button', { className: 'sidebar-toggle' }, ['☰']);
 
-    const teacherApp = el('div', { id: 'teacher-app', className: 'sidebar-open' }, [
+    const teacherApp = el('div', { id: 'teacher-app', className: `sidebar-open ${isCreator ? 'creator-mode' : ''}` }, [
         sidebar,
         mainContent,
         sidebarToggle,
@@ -221,7 +259,7 @@ export const renderTeacherShell = () => {
 
 
     // Initial render
-    navigateTo('dashboard');
+    navigateTo(isCreator ? 'creator' : 'dashboard');
     updateActiveNav();
     
     return teacherApp;

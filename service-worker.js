@@ -28,7 +28,8 @@ const urlsToCache = [
   '/src/ui/views/teacher/results.js',
   '/src/ui/views/teacher/scheme.js',
   '/src/ui/views/teacher/timetable.js',
-  '/src/ui/views/teacher/tuition.js'
+  '/src/ui/views/teacher/tuition.js',
+  '/src/ui/views/teacher/lesson-plans.js'
 ];
 
 self.addEventListener('install', event => {

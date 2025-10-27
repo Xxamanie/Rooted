@@ -70,7 +70,7 @@ export const renderLoginView = () => {
         el('div', { id: 'teacher-login-error', className: 'login-error-message', style: { display: 'none' } }),
         el('div', { className: 'form-group' }, [
             el('label', { htmlFor: 'login-school-code' }, ['School Code']),
-            el('input', { type: 'text', id: 'login-school-code', required: true, value: 'SMRT-2024' })
+            el('input', { type: 'text', id: 'login-school-code', required: true, placeholder: 'e.g. SMRT-A4B8' })
         ]),
         el('div', { className: 'form-group' }, [
             el('label', { htmlFor: 'login-staff-id' }, ['Staff ID']),
