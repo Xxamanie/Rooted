@@ -226,35 +226,33 @@ export const renderCreatorView = () => {
             el('p', { className: 'settings-description', style: { marginTop: '0', marginBottom: '25px' } }, [
                 'This panel contains powerful tools for managing the application. Use with caution.'
             ]),
-
-            el('div', { className: 'admin-grid-large' }, [
-                el('div', { className: 'record-form-card' }, [
-                    el('h4', {}, ['School Registration & Subscription']),
-                    el('p', { className: 'settings-description', style: { marginTop: '0', marginBottom: '15px' } }, [
-                        'Register a new school, manage their subscription status, and set custom pricing.'
-                    ]),
-                    registerSchoolForm
+            
+            el('div', { className: 'record-form-card' }, [
+                el('h4', {}, ['School Registration & Subscription']),
+                el('p', { className: 'settings-description', style: { marginTop: '0', marginBottom: '15px' } }, [
+                    'Register a new school, manage their subscription status, and set custom pricing.'
                 ]),
-                el('div', { className: 'record-form-card' }, [
-                     el('h4', {}, ['Registered Schools']),
-                     el('div', { className: 'management-list' }, [
-                        el('table', {}, [
-                            el('thead', {}, [
-                                el('tr', {}, [
-                                    el('th', {}, ['School Name']), 
-                                    el('th', {}, ['School Code']),
-                                    el('th', {}, ['Status']),
-                                    el('th', {}, ['Pricing']),
-                                    el('th', {}, ['Actions'])
-                                ])
-                            ]),
-                            schoolListTableBody
-                        ])
-                     ])
-                ]),
+                registerSchoolForm
+            ]),
+            el('div', { className: 'record-form-card' }, [
+                 el('h4', {}, ['Registered Schools']),
+                 el('div', { className: 'management-list' }, [
+                    el('table', {}, [
+                        el('thead', {}, [
+                            el('tr', {}, [
+                                el('th', {}, ['School Name']), 
+                                el('th', {}, ['School Code']),
+                                el('th', {}, ['Status']),
+                                el('th', {}, ['Pricing']),
+                                el('th', {}, ['Actions'])
+                            ])
+                        ]),
+                        schoolListTableBody
+                    ])
+                 ])
             ]),
             
-            el('div', { className: 'record-form-card', style: { marginTop: '25px' } }, [
+            el('div', { className: 'record-form-card' }, [
                 el('h4', {}, ['System-Wide Broadcast']),
                 el('p', { className: 'settings-description', style: { marginTop: '0', marginBottom: '15px' } }, [
                     'Send a message that will appear as a banner for every user (teachers, students, parents) upon their next page load.'
@@ -262,7 +260,7 @@ export const renderCreatorView = () => {
                 broadcastForm
             ]),
 
-            el('div', { className: 'record-form-card', style: { marginTop: '25px' } }, [
+            el('div', { className: 'record-form-card' }, [
                 el('h4', {}, ['Administrator Message']),
                 el('p', { className: 'settings-description', style: { marginTop: '0', marginBottom: '15px' } }, [
                     'Send a reminder or notice that will only be visible to users with the "Administrator" role. Ideal for subscription reminders.'
@@ -270,7 +268,7 @@ export const renderCreatorView = () => {
                 adminMessageForm
             ]),
 
-            el('div', { className: 'record-form-card', style: { borderTop: '2px solid var(--danger-color)', marginTop: '25px' } }, [
+            el('div', { className: 'record-form-card', style: { borderTop: '2px solid var(--danger-color)' } }, [
                 el('h4', {}, ['Danger Zone']),
                 el('p', { className: 'settings-description', style: { marginTop: '0', marginBottom: '15px' } }, [
                     'This action will completely wipe all data stored in the browser (staff, students, grades, etc.) and reset the app to its initial state.'
