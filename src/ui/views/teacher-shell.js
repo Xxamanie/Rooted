@@ -29,6 +29,16 @@ let apiKeyModal;
 
 export const showApiKeyModal = () => {
     if (!apiKeyModal) return;
+    const state = getState();
+    
+    // Populate form with current state when opening
+    apiKeyModal.querySelector('#ai-provider-select').value = state.aiProvider;
+    apiKeyModal.querySelector('#gemini-api-key-input').value = state.geminiApiKey || '';
+    apiKeyModal.querySelector('#openai-api-key-input').value = state.openaiApiKey || '';
+    
+    // Trigger change event to show/hide correct input
+    apiKeyModal.querySelector('#ai-provider-select').dispatchEvent(new Event('change'));
+
     apiKeyModal.style.display = 'flex';
     setTimeout(() => apiKeyModal.classList.add('visible'), 10);
 };
@@ -42,34 +52,77 @@ const hideApiKeyModal = () => {
 };
 
 const createApiKeyModal = () => {
-    const handleSaveApiKey = () => {
-        const apiKeyInput = apiKeyModal.querySelector('#api-key-input');
-        const newKey = apiKeyInput.value.trim();
-        if (newKey) {
-            localStorage.setItem('smartschool_apiKey', newKey);
-            setState({ apiKey: newKey });
-            showToast('API Key saved successfully!', 'success');
-            hideApiKeyModal();
-        } else {
-            showToast('Please enter a valid API key.', 'error');
+    const handleSaveApiSettings = () => {
+        const provider = apiKeyModal.querySelector('#ai-provider-select').value;
+        const geminiKey = apiKeyModal.querySelector('#gemini-api-key-input').value.trim();
+        const openaiKey = apiKeyModal.querySelector('#openai-api-key-input').value.trim();
+
+        if (provider === 'gemini' && !geminiKey) {
+            showToast('Please enter a valid Gemini API key.', 'error');
+            return;
         }
+        if (provider === 'openai' && !openaiKey) {
+            showToast('Please enter a valid OpenAI API key.', 'error');
+            return;
+        }
+
+        localStorage.setItem('smartschool_aiProvider', provider);
+        localStorage.setItem('smartschool_geminiApiKey', geminiKey);
+        localStorage.setItem('smartschool_openaiApiKey', openaiKey);
+        setState({ 
+            aiProvider: provider,
+            geminiApiKey: geminiKey,
+            openaiApiKey: openaiKey,
+        });
+        showToast('AI settings saved successfully!', 'success');
+        hideApiKeyModal();
     };
+
+    const providerSelect = el('select', { id: 'ai-provider-select' }, [
+        el('option', { value: 'gemini' }, ['Google Gemini']),
+        el('option', { value: 'openai' }, ['OpenAI (ChatGPT)'])
+    ]);
+
+    const geminiKeyInputGroup = el('div', { id: 'gemini-key-group', className: 'form-group' }, [
+        el('label', { htmlFor: 'gemini-api-key-input' }, ['Gemini API Key']),
+        el('input', { type: 'password', id: 'gemini-api-key-input', placeholder: 'Enter your Gemini API key' })
+    ]);
+
+    const openaiKeyInputGroup = el('div', { id: 'openai-key-group', className: 'form-group' }, [
+        el('label', { htmlFor: 'openai-api-key-input' }, ['OpenAI API Key']),
+        el('input', { type: 'password', id: 'openai-api-key-input', placeholder: 'Enter your OpenAI API key' })
+    ]);
+
+    providerSelect.addEventListener('change', (e) => {
+        const provider = e.target.value;
+        geminiKeyInputGroup.style.display = provider === 'gemini' ? 'block' : 'none';
+        openaiKeyInputGroup.style.display = provider === 'openai' ? 'block' : 'none';
+    });
 
     apiKeyModal = el('div', { id: 'api-key-modal', className: 'modal-overlay' }, [
         el('div', { className: 'modal-content', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'api-key-title' }, [
             el('button', { className: 'modal-close-btn', 'aria-label': 'Close' }, ['×']),
-            el('h3', { id: 'api-key-title' }, ['API Key Configuration']),
-            el('p', {}, ['Please enter your Google AI Gemini API key. You can get a new key from ', el('a', { href: "https://aistudio.google.com/app/apikey", target: "_blank", rel: "noopener noreferrer" }, ['Google AI Studio']), '.']),
-            el('div', { className: 'form-group' }, [
-                el('label', { htmlFor: 'api-key-input' }, ['Gemini API Key']),
-                el('input', { type: 'password', id: 'api-key-input', placeholder: 'Enter your API key here' })
+            el('h3', { id: 'api-key-title' }, ['AI Provider Configuration']),
+            el('p', {}, ['Select your preferred AI provider and enter the corresponding API key.']),
+             el('div', { className: 'form-group' }, [
+                el('label', { htmlFor: 'ai-provider-select' }, ['AI Provider']),
+                providerSelect
             ]),
-            el('button', { id: 'save-api-key-btn', className: 'btn' }, ['Save Key'])
+            geminiKeyInputGroup,
+            openaiKeyInputGroup,
+            el('p', { className: 'settings-description' }, [
+                'Get your keys from ',
+                el('a', { href: "https://aistudio.google.com/app/apikey", target: "_blank", rel: "noopener noreferrer" }, ['Google AI Studio']),
+                ' or ',
+                 el('a', { href: "https://platform.openai.com/api-keys", target: "_blank", rel: "noopener noreferrer" }, ['the OpenAI Platform']),
+                '.'
+            ]),
+            el('button', { id: 'save-api-key-btn', className: 'btn' }, ['Save Settings'])
         ])
     ]);
 
     apiKeyModal.querySelector('.modal-close-btn').addEventListener('click', hideApiKeyModal);
-    apiKeyModal.querySelector('#save-api-key-btn').addEventListener('click', handleSaveApiKey);
+    apiKeyModal.querySelector('#save-api-key-btn').addEventListener('click', handleSaveApiSettings);
     
     return apiKeyModal;
 };

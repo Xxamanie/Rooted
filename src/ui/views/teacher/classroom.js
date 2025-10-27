@@ -6,7 +6,7 @@
 import { el, renderChildren, simpleMarkdownToNodes, showToast, showSpinner, hideSpinner } from "../../dom-utils.js";
 import { getState, setState } from "../../../state.js";
 import { api } from "../../../api.js";
-import { geminiService } from "../../../services/gemini.js";
+import { aiService } from "../../../services/ai.js";
 
 const populateClassSelector = (selectElement) => {
     const { students } = getState();
@@ -87,7 +87,7 @@ const handleAIAssistedGrade = async (assignmentId, studentId, feedbackBox, score
 
     feedbackBox.textContent = 'Analyzing essay...';
     
-    const result = await geminiService.gradeEssay(assignment.prompt, submission.submissionText);
+    const result = await aiService.gradeEssay(assignment.prompt, submission.submissionText);
     
     if (result) {
         const feedbackElements = [

@@ -1,11 +1,14 @@
 
 
-const CACHE_NAME = 'smartschool-v4'; // Bumped version to ensure new SW is installed
+const CACHE_NAME = 'smartschool-v5'; // Bumped version to ensure new SW is installed
 const urlsToCache = [
   '/',
   '/index.html',
   '/index.css',
   '/manifest.json',
+  '/metadata.json',
+  '/assets/icon-192x192.png',
+  '/assets/icon-512x512.png',
   '/index.tsx',
   '/src/api.js',
   '/src/router.js',
@@ -29,7 +32,8 @@ const urlsToCache = [
   '/src/ui/views/teacher/scheme.js',
   '/src/ui/views/teacher/timetable.js',
   '/src/ui/views/teacher/tuition.js',
-  '/src/ui/views/teacher/lesson-plans.js'
+  '/src/ui/views/teacher/lesson-plans.js',
+  '/src/ui/views/teacher/creator.js'
 ];
 
 self.addEventListener('install', event => {

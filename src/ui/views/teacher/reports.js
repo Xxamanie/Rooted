@@ -6,8 +6,8 @@
 import { el, renderChildren, showToast, showSpinner, hideSpinner, simpleMarkdownToNodes } from "../../dom-utils.js";
 import { getState } from "../../../state.js";
 import { api } from "../../../api.js";
-import { getLetterGrade } from "../../../utils.js";
-import { geminiService } from "../../../services/gemini.js";
+import { getLetterGrade } from "../../utils.js";
+import { aiService } from "../../../services/ai.js";
 
 const populateStudentSelector = (selectElement) => {
     const { students } = getState();
@@ -69,7 +69,7 @@ export const renderReportCard = (studentId, term, container) => {
         const prompt = `You are a thoughtful and encouraging teacher writing end-of-term report card remarks for a student named ${student.name}. Their overall average for the term was ${average.toFixed(1)}%. Their subject scores were: ${gradesSummary}.
         Write a 3-4 sentence summary of their performance. Start by mentioning a strength or a high-performing subject. Then, gently point out one or two subjects where they could improve. Conclude with an encouraging closing statement.`;
 
-        const remarksText = await geminiService.generateSimpleText(prompt);
+        const remarksText = await aiService.generateSimpleText(prompt);
 
         if (remarksText) {
              renderChildren(remarksBox, simpleMarkdownToNodes(remarksText));

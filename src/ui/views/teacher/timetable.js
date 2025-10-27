@@ -6,7 +6,7 @@
 import { el, renderChildren, showToast, showSpinner, hideSpinner } from "../../dom-utils.js";
 import { getState, setState } from "../../../state.js";
 import { api } from "../../../api.js";
-import { geminiService } from "../../../services/gemini.js";
+import { aiService } from "../../../services/ai.js";
 
 const renderTimetable = (container) => {
     const { timetable } = getState();
@@ -50,7 +50,7 @@ export const renderTimetableView = () => {
             .map(t => `${t.name} teaches ${t.role}`)
             .join('; ');
 
-        const newTimetable = await geminiService.generateTimetable(classes, offLimits, teachersAndSubjects);
+        const newTimetable = await aiService.generateTimetable(classes, offLimits, teachersAndSubjects);
 
         if (newTimetable) {
             localStorage.setItem('smartschool_timetable', JSON.stringify(newTimetable));

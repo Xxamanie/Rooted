@@ -5,7 +5,7 @@
 
 import { el, renderChildren, simpleMarkdownToNodes, showSpinner, hideSpinner } from "../../dom-utils.js";
 import { getState } from "../../../state.js";
-import { geminiService } from "../../../services/gemini.js";
+import { aiService } from "../../../services/ai.js";
 
 export const renderAnalyticsView = () => {
     const state = getState();
@@ -39,7 +39,7 @@ export const renderAnalyticsView = () => {
 
         const prompt = `As a school principal, analyze this data to identify students at risk of failing or dropping out. An at-risk student has an average score below 50 or problematic attendance over 20%. For each at-risk student, provide their name, class, and a 1-sentence summary of the issue with a recommended action. If no students are at risk, state that clearly. Data: ${JSON.stringify(studentData)}`;
 
-        const reportText = await geminiService.generateSimpleText(prompt);
+        const reportText = await aiService.generateSimpleText(prompt);
 
         if (reportText) {
             renderChildren(reportBox, simpleMarkdownToNodes(reportText));

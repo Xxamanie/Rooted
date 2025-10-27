@@ -9,13 +9,13 @@ import { showToast } from "../ui/dom-utils.js";
 import { showApiKeyModal } from "../ui/views/teacher-shell.js";
 
 const getAiClient = () => {
-    const { apiKey } = getState();
-    if (!apiKey) {
+    const { geminiApiKey } = getState();
+    if (!geminiApiKey) {
         showToast("Please set your Gemini API Key in the settings.", "error");
         showApiKeyModal();
         return null;
     }
-    return new GoogleGenAI({ apiKey });
+    return new GoogleGenAI({ apiKey: geminiApiKey });
 };
 
 export const geminiService = {

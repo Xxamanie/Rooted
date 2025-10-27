@@ -29,7 +29,9 @@ let state = {
     currentParent: null,
     activeChat: null,
     chatHistory: [],
-    apiKey: null,
+    geminiApiKey: null,
+    openaiApiKey: null,
+    aiProvider: 'gemini', // 'gemini' or 'openai'
     isLiveMode: false,
 };
 

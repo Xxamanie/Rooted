@@ -6,7 +6,7 @@
 import { el, renderChildren, showToast, showSpinner, hideSpinner, createConfirmationModal } from "../../dom-utils.js";
 import { getState } from "../../../state.js";
 import { api } from "../../../api.js";
-import { geminiService } from "../../../services/gemini.js";
+import { aiService } from "../../../services/ai.js";
 
 let editingPlanId = null;
 
@@ -131,7 +131,7 @@ export const renderLessonPlansView = () => {
         button.disabled = true;
         showSpinner('#lesson-plan-form-card');
         
-        const plan = await geminiService.generateLessonPlan(topic, grade, weeks);
+        const plan = await aiService.generateLessonPlan(topic, grade, weeks);
 
         if (plan) {
             // Populate the main form with the generated content

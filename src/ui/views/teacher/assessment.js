@@ -8,7 +8,7 @@
 import { el, renderChildren, showToast, showSpinner, hideSpinner } from "../../dom-utils.js";
 import { getState, setState } from "../../../state.js";
 import { api } from "../../../api.js";
-import { geminiService } from "../../../services/gemini.js";
+import { aiService } from "../../../services/ai.js";
 
 let cameraModalStream = null;
 
@@ -154,7 +154,7 @@ export const renderAssessmentView = () => {
         const quizResultsContainer = document.getElementById('quiz-results-container');
         quizResultsContainer.innerHTML = '';
         
-        const quizData = await geminiService.generateQuiz(topic, numQuestions);
+        const quizData = await aiService.generateQuiz(topic, numQuestions);
         
         if (quizData) {
             const quizElements = quizData.map((q, index) => {
@@ -197,7 +197,7 @@ export const renderAssessmentView = () => {
         resultsContainer.innerHTML = '';
         diffContainer.innerHTML = '';
 
-        const plan = await geminiService.generateLessonPlan(topic, grade, weeks);
+        const plan = await aiService.generateLessonPlan(topic, grade, weeks);
 
         if (plan) {
             const objectivesElements = plan.learningObjectives.map((obj) => el('li', {}, [obj]));
@@ -234,7 +234,7 @@ export const renderAssessmentView = () => {
         const resultsContainer = document.getElementById('differentiated-materials-container');
         resultsContainer.innerHTML = '';
 
-        const materials = await geminiService.generateDifferentiatedMaterials(topic);
+        const materials = await aiService.generateDifferentiatedMaterials(topic);
 
         if (materials) {
             const materialElements = materials.map((item) => 
@@ -559,7 +559,7 @@ const submitAndGradeExam = async (examId) => {
 
     if (textQuestionsToGrade.length > 0) {
         showToast('AI is grading your written answers...', 'info');
-        const gradedScores = await geminiService.gradeExamAnswers(textQuestionsToGrade);
+        const gradedScores = await aiService.gradeExamAnswers(textQuestionsToGrade);
         
         if (gradedScores) {
             gradedScores.forEach(graded => {
@@ -578,7 +578,7 @@ const submitAndGradeExam = async (examId) => {
 
     // Proactively generate a study buddy message if the score is low (e.g. < 60%)
     if (finalPercentage < 60) {
-        geminiService.generateProactiveMessage(
+        aiService.generateProactiveMessage(
             student.name,
             exam.subject,
             totalScore,
@@ -905,7 +905,7 @@ export const renderExaminationView = () => {
         }
         
         showSpinner('#exam-creation-card');
-        const questions = await geminiService.generateExamQuestions(topic, questionCounts);
+        const questions = await aiService.generateExamQuestions(topic, questionCounts);
         hideSpinner('#exam-creation-card');
         
         if (questions) {

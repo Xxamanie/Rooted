@@ -5,8 +5,8 @@
 
 import { el, renderChildren, simpleMarkdownToNodes, showSpinner, hideSpinner } from "../../dom-utils.js";
 import { getState } from "../../../state.js";
-import { geminiService } from "../../../services/gemini.js";
-import { getLetterGrade } from "../../../utils.js";
+import { aiService } from "../../../services/ai.js";
+import { getLetterGrade } from "../../utils.js";
 
 const populateStudentSelector = (selectElement) => {
     const { students } = getState();
@@ -67,7 +67,7 @@ const renderProgressReport = (studentId, container) => {
 
         const prompt = `You are a school counselor. Analyze this student's data and write a concise progress report summary (3-4 sentences). Highlight strengths, identify areas for improvement, and suggest one actionable step for the student. Data: ${JSON.stringify(data)}`;
 
-        const summaryText = await geminiService.generateSimpleText(prompt);
+        const summaryText = await aiService.generateSimpleText(prompt);
         if (summaryText) {
             renderChildren(summaryBox, simpleMarkdownToNodes(summaryText));
         } else {

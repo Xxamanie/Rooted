@@ -6,7 +6,7 @@
 import { el, renderChildren, simpleMarkdownToNodes } from "../dom-utils.js";
 import { getState, setState } from "../../state.js";
 import { api } from "../../api.js";
-import { geminiService } from "../../services/gemini.js";
+import { aiService } from "../../services/ai.js";
 
 // Note: In a larger app, modals would be handled by a global modal service.
 // For simplicity, we are re-declaring them here as the student portal is a separate "app".
@@ -78,7 +78,7 @@ const renderStudyBuddy = (mainContentContainer) => {
 
         try {
             if (!activeChat) {
-                activeChat = await geminiService.startChat();
+                activeChat = await aiService.startChat();
                 if (!activeChat) throw new Error("Could not start chat.");
             }
             
