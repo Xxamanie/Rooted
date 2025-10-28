@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { setState } from './state.js';
+import { getState, setState } from './state.js';
 import { showToast } from './ui/dom-utils.js';
 
 // =================================================================
@@ -255,11 +255,22 @@ export const api = {
             }
         };
         await post('/api/data/schools', newSchool);
+        
+        // Add the new school to the local state so the UI updates immediately.
+        const { schools } = getState();
+        setState({ schools: [...schools, newSchool] });
+        
         return newSchool;
     },
 
     async updateSchoolSubscription(schoolId, newSubscriptionDetails) {
-        return put(`/api/data/schools/${schoolId}`, { subscription: newSubscriptionDetails });
+        const updatedSchool = await put(`/api/data/schools/${schoolId}`, { subscription: newSubscriptionDetails });
+        const { schools } = getState();
+        const updatedSchools = schools.map(school => 
+            school.id === schoolId ? updatedSchool : school
+        );
+        setState({ schools: updatedSchools });
+        return updatedSchool;
     },
     
     async broadcastMessage(message) {
