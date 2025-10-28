@@ -2496,3 +2496,42 @@ input:checked + .switch:before {
 .close-admin-btn:hover {
     opacity: 1;
 }
+
+/* Creator Panel Navigation */
+.creator-nav {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+    border-bottom: 2px solid var(--creator-purple-light);
+    padding-bottom: 15px;
+}
+.creator-nav-btn {
+    padding: 10px 20px;
+    border: none;
+    background-color: var(--background-light);
+    color: var(--text-medium);
+    font-weight: 600;
+    border-radius: 8px 8px 0 0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-bottom: 2px solid transparent;
+}
+.creator-nav-btn:hover {
+    background-color: #e2e6ea;
+    color: var(--creator-purple-dark);
+}
+.creator-nav-btn.active {
+    background-color: var(--creator-purple-dark);
+    color: white;
+    transform: translateY(2px);
+    border-bottom-color: var(--accent-gold);
+}
+.creator-panel {
+    display: none;
+    flex-direction: column;
+    gap: 25px;
+}
+.creator-panel.active {
+    display: flex;
+    animation: fadeIn 0.5s ease;
+}

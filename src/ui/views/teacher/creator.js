@@ -1,5 +1,3 @@
-
-
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
@@ -102,6 +100,7 @@ const renderSchoolList = (tableBody) => {
 };
 
 export const renderCreatorView = () => {
+    // --- Event Handlers ---
     const handleBroadcastMessage = async (e) => {
         e.preventDefault();
         const form = e.target;
@@ -170,111 +169,143 @@ export const renderCreatorView = () => {
         }
     };
     
+    // --- Create Content Cards ---
     const schoolListTableBody = el('tbody');
     renderSchoolList(schoolListTableBody);
 
-    const broadcastForm = el('form', { id: 'broadcast-form' }, [
-        el('div', { className: 'form-group' }, [
-            el('label', { htmlFor: 'broadcast-message' }, ['Broadcast Message']),
-            el('textarea', { id: 'broadcast-message', rows: 3, placeholder: 'e.g., Scheduled maintenance tonight at 10 PM.', required: true })
-        ]),
-        el('button', { type: 'submit', className: 'btn btn-info', style: { width: 'auto' } }, ['Send Broadcast to All Users'])
-    ]);
-    broadcastForm.addEventListener('submit', handleBroadcastMessage);
-
-    const adminMessageForm = el('form', { id: 'admin-message-form' }, [
-        el('div', { className: 'form-group' }, [
-            el('label', { htmlFor: 'admin-message' }, ['Admin-Only Message']),
-            el('textarea', { id: 'admin-message', rows: 3, placeholder: 'e.g., Reminder: Your subscription is due for renewal...', required: true })
-        ]),
-        el('button', { type: 'submit', className: 'btn', style: { width: 'auto', backgroundColor: 'var(--accent-gold-dark)' } }, ['Send to Administrators'])
-    ]);
-    adminMessageForm.addEventListener('submit', handleAdminMessage);
-    
-    const registerSchoolForm = el('form', {}, [
-        el('div', { className: 'form-group' }, [
-            el('label', { htmlFor: 'school-name' }, ['New School Name']),
-            el('input', { type: 'text', id: 'school-name', placeholder: 'e.g., Northwood High', required: true })
-        ]),
-        el('div', { className: 'form-group' }, [
-            el('label', { htmlFor: 'school-sub-type' }, ['Subscription Bundle']),
-            el('select', { id: 'school-sub-type' }, [
-                el('option', { value: 'Annually' }, ['Annually']),
-                el('option', { value: 'Termly' }, ['Termly']),
-            ])
-        ]),
-        el('div', { className: 'form-row', style: { marginBottom: '0'} }, [
-             el('div', { className: 'form-group' }, [
-                el('label', { htmlFor: 'school-cost-annual' }, ['Annual Cost ($)']),
-                el('input', { type: 'number', id: 'school-cost-annual', placeholder: 'e.g., 1200', min: '0' })
-            ]),
-            el('div', { className: 'form-group' }, [
-                el('label', { htmlFor: 'school-cost-term' }, ['Cost Per Term ($)']),
-                el('input', { type: 'number', id: 'school-cost-term', placeholder: 'e.g., 500', min: '0' })
-            ]),
-        ]),
-        el('button', { type: 'submit', className: 'btn' }, ['Register School'])
-    ]);
+    const registerSchoolForm = el('form', {}, [ /* ... form elements ... */ ]);
     registerSchoolForm.addEventListener('submit', handleRegisterSchool);
     
-    const resetDataBtn = el('button', { className: 'btn btn-danger' }, ['Reset All School Data']);
-    resetDataBtn.addEventListener('click', handleResetAllData);
-
-    return el('div', { className: 'tab-content' }, [
-        el('div', { className: 'management-card' }, [
-            el('h3', {}, ['Creator Controls']),
-            el('p', { className: 'settings-description', style: { marginTop: '0', marginBottom: '25px' } }, [
-                'This panel contains powerful tools for managing the application. Use with caution.'
+    // School Management Cards
+    const registerSchoolCard = el('div', { className: 'management-card' }, [
+        el('h4', {}, ['School Registration & Subscription']),
+        el('p', { className: 'settings-description', style: { marginTop: '0', marginBottom: '15px' } }, [
+            'Register a new school, manage their subscription status, and set custom pricing.'
+        ]),
+        el('form', {}, [
+            el('div', { className: 'form-group' }, [
+                el('label', { htmlFor: 'school-name' }, ['New School Name']),
+                el('input', { type: 'text', id: 'school-name', placeholder: 'e.g., Northwood High', required: true })
             ]),
-            
-            el('div', { className: 'record-form-card' }, [
-                el('h4', {}, ['School Registration & Subscription']),
-                el('p', { className: 'settings-description', style: { marginTop: '0', marginBottom: '15px' } }, [
-                    'Register a new school, manage their subscription status, and set custom pricing.'
+            el('div', { className: 'form-group' }, [
+                el('label', { htmlFor: 'school-sub-type' }, ['Subscription Bundle']),
+                el('select', { id: 'school-sub-type' }, [
+                    el('option', { value: 'Annually' }, ['Annually']),
+                    el('option', { value: 'Termly' }, ['Termly']),
+                ])
+            ]),
+            el('div', { className: 'form-row', style: { marginBottom: '0'} }, [
+                 el('div', { className: 'form-group' }, [
+                    el('label', { htmlFor: 'school-cost-annual' }, ['Annual Cost ($)']),
+                    el('input', { type: 'number', id: 'school-cost-annual', placeholder: 'e.g., 1200', min: '0' })
                 ]),
-                registerSchoolForm
-            ]),
-            el('div', { className: 'record-form-card' }, [
-                 el('h4', {}, ['Registered Schools']),
-                 el('div', { className: 'management-list' }, [
-                    el('table', {}, [
-                        el('thead', {}, [
-                            el('tr', {}, [
-                                el('th', {}, ['School Name']), 
-                                el('th', {}, ['School Code']),
-                                el('th', {}, ['Status']),
-                                el('th', {}, ['Pricing']),
-                                el('th', {}, ['Actions'])
-                            ])
-                        ]),
-                        schoolListTableBody
-                    ])
-                 ])
-            ]),
-            
-            el('div', { className: 'record-form-card' }, [
-                el('h4', {}, ['System-Wide Broadcast']),
-                el('p', { className: 'settings-description', style: { marginTop: '0', marginBottom: '15px' } }, [
-                    'Send a message that will appear as a banner for every user (teachers, students, parents) upon their next page load.'
+                el('div', { className: 'form-group' }, [
+                    el('label', { htmlFor: 'school-cost-term' }, ['Cost Per Term ($)']),
+                    el('input', { type: 'number', id: 'school-cost-term', placeholder: 'e.g., 500', min: '0' })
                 ]),
-                broadcastForm
             ]),
-
-            el('div', { className: 'record-form-card' }, [
-                el('h4', {}, ['Administrator Message']),
-                el('p', { className: 'settings-description', style: { marginTop: '0', marginBottom: '15px' } }, [
-                    'Send a reminder or notice that will only be visible to users with the "Administrator" role. Ideal for subscription reminders.'
-                ]),
-                adminMessageForm
-            ]),
-
-            el('div', { className: 'record-form-card', style: { borderTop: '2px solid var(--danger-color)' } }, [
-                el('h4', {}, ['Danger Zone']),
-                el('p', { className: 'settings-description', style: { marginTop: '0', marginBottom: '15px' } }, [
-                    'This action will completely wipe all data stored in the browser (staff, students, grades, etc.) and reset the app to its initial state.'
-                ]),
-                resetDataBtn
-            ])
+            el('button', { type: 'submit', className: 'btn' }, ['Register School'])
         ])
     ]);
+    registerSchoolCard.querySelector('form').addEventListener('submit', handleRegisterSchool);
+
+    const schoolListCard = el('div', { className: 'management-card' }, [
+         el('h4', {}, ['Registered Schools']),
+         el('div', { className: 'management-list' }, [
+            el('table', {}, [
+                el('thead', {}, [
+                    el('tr', {}, [
+                        el('th', {}, ['School Name']), 
+                        el('th', {}, ['School Code']),
+                        el('th', {}, ['Status']),
+                        el('th', {}, ['Pricing']),
+                        el('th', {}, ['Actions'])
+                    ])
+                ]),
+                schoolListTableBody
+            ])
+         ])
+    ]);
+    
+    // Messaging Cards
+    const broadcastCard = el('div', { className: 'management-card' }, [
+        el('h4', {}, ['System-Wide Broadcast']),
+        el('p', { className: 'settings-description', style: { marginTop: '0', marginBottom: '15px' } }, [
+            'Send a message that will appear as a banner for every user (teachers, students, parents) upon their next page load.'
+        ]),
+        el('form', { id: 'broadcast-form' }, [
+            el('div', { className: 'form-group' }, [
+                el('label', { htmlFor: 'broadcast-message' }, ['Broadcast Message']),
+                el('textarea', { id: 'broadcast-message', rows: 3, placeholder: 'e.g., Scheduled maintenance tonight at 10 PM.', required: true })
+            ]),
+            el('button', { type: 'submit', className: 'btn btn-info', style: { width: 'auto' } }, ['Send Broadcast to All Users'])
+        ])
+    ]);
+    broadcastCard.querySelector('form').addEventListener('submit', handleBroadcastMessage);
+    
+    const adminMessageCard = el('div', { className: 'management-card' }, [
+        el('h4', {}, ['Administrator Message']),
+        el('p', { className: 'settings-description', style: { marginTop: '0', marginBottom: '15px' } }, [
+            'Send a reminder or notice that will only be visible to users with the "Administrator" role. Ideal for subscription reminders.'
+        ]),
+        el('form', { id: 'admin-message-form' }, [
+            el('div', { className: 'form-group' }, [
+                el('label', { htmlFor: 'admin-message' }, ['Admin-Only Message']),
+                el('textarea', { id: 'admin-message', rows: 3, placeholder: 'e.g., Reminder: Your subscription is due for renewal...', required: true })
+            ]),
+            el('button', { type: 'submit', className: 'btn', style: { width: 'auto', backgroundColor: 'var(--accent-gold-dark)' } }, ['Send to Administrators'])
+        ])
+    ]);
+    adminMessageCard.querySelector('form').addEventListener('submit', handleAdminMessage);
+
+    // System Cards
+    const creatorControlsCard = el('div', { className: 'management-card' }, [
+        el('h3', {}, ['Creator Controls']),
+        el('p', { className: 'settings-description', style: { marginTop: '0', marginBottom: '0' } }, [
+            'This panel contains powerful tools for managing the application. Use with caution.'
+        ]),
+    ]);
+    const dangerZoneCard = el('div', { className: 'management-card', style: { borderTop: '2px solid var(--danger-color)' } }, [
+        el('h4', {}, ['Danger Zone']),
+        el('p', { className: 'settings-description', style: { marginTop: '0', marginBottom: '15px' } }, [
+            'This action will completely wipe all data stored in the browser (staff, students, grades, etc.) and reset the app to its initial state.'
+        ]),
+        el('button', { className: 'btn btn-danger' }, ['Reset All School Data'])
+    ]);
+    dangerZoneCard.querySelector('button').addEventListener('click', handleResetAllData);
+
+    // --- Tab Navigation Setup ---
+    const nav = el('div', { className: 'creator-nav' }, [
+        el('button', { className: 'creator-nav-btn active', 'data-target': 'panel-schools' }, ['School Management']),
+        el('button', { className: 'creator-nav-btn', 'data-target': 'panel-messaging' }, ['Messaging']),
+        el('button', { className: 'creator-nav-btn', 'data-target': 'panel-system' }, ['System'])
+    ]);
+
+    const panelsContainer = el('div', { className: 'creator-panels-container' }, [
+        el('div', { id: 'panel-schools', className: 'creator-panel active' }, [registerSchoolCard, schoolListCard]),
+        el('div', { id: 'panel-messaging', className: 'creator-panel' }, [broadcastCard, adminMessageCard]),
+        el('div', { id: 'panel-system', className: 'creator-panel' }, [creatorControlsCard, dangerZoneCard])
+    ]);
+    
+    const view = el('div', { className: 'tab-content creator-view' }, [nav, panelsContainer]);
+    
+    // --- Tab Switching Logic ---
+    nav.addEventListener('click', (e) => {
+        if (e.target.matches('.creator-nav-btn')) {
+            const targetId = e.target.dataset.target;
+
+            nav.querySelectorAll('.creator-nav-btn').forEach(btn => btn.classList.remove('active'));
+            e.target.classList.add('active');
+
+            panelsContainer.querySelectorAll('.creator-panel').forEach(panel => {
+                if (panel.id === targetId) {
+                    panel.classList.add('active');
+                } else {
+                    panel.classList.remove('active');
+                }
+            });
+        }
+    });
+
+    return view;
 };
