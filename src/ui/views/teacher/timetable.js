@@ -30,7 +30,8 @@ const renderTimetable = (container) => {
         el('tbody', {}, rows)
     ]);
     
-    renderChildren(container, [table]);
+    const tableWrapper = el('div', { style: { overflowX: 'auto' } }, [table]);
+    renderChildren(container, [tableWrapper]);
 };
 
 export const renderTimetableView = () => {

@@ -622,6 +622,7 @@ body {
     font-size: 20px;
     line-height: 1;
     transition: left 0.3s ease;
+    display: none; /* Hide on desktop */
 }
 
 #teacher-app:not(.sidebar-open) .sidebar-toggle {
@@ -721,6 +722,7 @@ body {
 .management-list {
     position: relative;
     min-height: 100px;
+    overflow-x: auto;
 }
 .scrollable-list {
     max-height: 400px;
@@ -1845,6 +1847,10 @@ input:checked + .switch:before {
        pointer-events: auto;
     }
 
+    .sidebar-toggle {
+        display: block;
+    }
+
     .admin-grid-large, .classroom-grid, .scheme-grid, .progress-grid, .dashboard-grid, .student-dashboard-grid, .assessment-ai-grid {
         grid-template-columns: 1fr;
     }
@@ -1867,13 +1873,27 @@ input:checked + .switch:before {
     }
     .header {
         padding: 15px 20px;
-        gap: 10px;
+        gap: 15px;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .header-left {
+        margin-right: 0;
+    }
+    .header-right {
+        width: 100%;
+        justify-content: space-between;
     }
     .header-welcome-text {
         display: none;
     }
     .header-search-container {
-        width: 180px;
+        width: 100%;
+        order: -1;
+        margin-bottom: 5px;
+    }
+    .student-dashboard-grid {
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     }
 }
 
@@ -2557,6 +2577,7 @@ input:checked + .switch:before {
     margin-bottom: 25px;
     border-bottom: 2px solid var(--creator-purple-light);
     padding-bottom: 15px;
+    flex-wrap: wrap;
 }
 .creator-nav-btn {
     padding: 10px 20px;
@@ -2587,4 +2608,48 @@ input:checked + .switch:before {
 .creator-panel.active {
     display: flex;
     animation: fadeIn 0.5s ease;
+}
+
+@media (max-width: 576px) {
+    .login-form {
+        padding: 25px 20px;
+    }
+    .modal-content {
+        padding: 25px 20px;
+    }
+    .header h1 {
+        font-size: 1.3em;
+    }
+    .dashboard-banner {
+        padding: 25px;
+        text-align: center;
+    }
+    .dashboard-banner h2 {
+        font-size: 1.8em;
+    }
+    .report-card {
+        padding: 20px 15px;
+    }
+    .report-card-header {
+        flex-direction: column;
+        text-align: center;
+    }
+     .report-card-header .header-student-info {
+        text-align: center;
+    }
+    .grades-table {
+        font-size: 13px;
+    }
+    .grades-table th, .grades-table td {
+        padding: 8px 5px;
+    }
+    .exam-timer-container {
+        margin: 20px -20px;
+    }
+    .student-proctor-view {
+        width: 120px;
+        height: 90px;
+        bottom: 15px;
+        right: 15px;
+    }
 }
