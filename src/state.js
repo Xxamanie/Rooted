@@ -18,6 +18,7 @@ let state = {
     essayAssignments: [],
     essaySubmissions: [],
     grades: [],
+    notifications: [],
     lessonPlans: [],
     accessCodes: [],
     parentAccessCodes: [],
@@ -29,9 +30,6 @@ let state = {
     currentParent: null,
     activeChat: null,
     chatHistory: [],
-    geminiApiKey: null,
-    openaiApiKey: null,
-    aiProvider: 'gemini', // 'gemini' or 'openai'
     isLiveMode: false,
     broadcastMessage: null,
     adminMessage: null,

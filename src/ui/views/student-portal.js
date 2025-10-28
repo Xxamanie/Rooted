@@ -14,6 +14,96 @@ import { renderViewExamModal, hideViewExamModal } from "./teacher/assessment.js"
 import { renderStudentViewEssayModal, hideViewEssayModal } from "./teacher/classroom.js";
 import { renderReportCard } from "./teacher/reports.js";
 
+let notificationDropdownListenerAttached = false;
+
+const renderNotificationsDropdown = (container, studentNotifications) => {
+    container.innerHTML = ''; // Clear
+
+    const header = el('div', { className: 'notifications-header' }, ['Notifications']);
+    const list = el('div', { className: 'notifications-list' });
+    const footer = el('div', { className: 'notifications-footer' }, [' ']);
+    
+    if (studentNotifications.length === 0) {
+        list.appendChild(el('div', { className: 'notification-item' }, [
+            el('p', {}, ['You have no new notifications.'])
+        ]));
+        footer.textContent = 'All caught up!';
+    } else {
+        const sortedNotifications = [...studentNotifications].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        
+        sortedNotifications.forEach(n => {
+            const item = el('div', { className: `notification-item ${n.read ? '' : 'unread'}` }, [
+                el('div', { className: 'notification-icon' }, [n.type === 'grade' ? '🎓' : '🔔']),
+                el('div', { className: 'notification-content' }, [
+                    el('p', {}, [n.message]),
+                    el('div', { className: 'timestamp' }, [new Date(n.timestamp).toLocaleString()])
+                ])
+            ]);
+            list.appendChild(item);
+        });
+        footer.textContent = 'End of notifications';
+    }
+
+    container.append(header, list, footer);
+}
+
+const renderNotificationBell = () => {
+    const { notifications, currentStudent } = getState();
+    const studentNotifications = notifications.filter(n => n.studentId === currentStudent.id);
+    const unreadCount = studentNotifications.filter(n => !n.read).length;
+
+    const bellIcon = el('button', { className: 'btn btn-icon-only' }, ['🔔']);
+    const badge = unreadCount > 0 ? el('div', { className: 'notification-badge' }, [unreadCount.toString()]) : null;
+    
+    const dropdown = el('div', { className: 'notifications-dropdown' });
+    
+    const notificationBell = el('div', { className: 'notification-bell' }, [
+        bellIcon,
+        badge,
+        dropdown
+    ]);
+    
+    bellIcon.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdown.classList.toggle('visible');
+        if (dropdown.classList.contains('visible')) {
+            const unreadNotifs = studentNotifications.filter(n => !n.read);
+            if (unreadNotifs.length > 0) {
+                const unreadIds = unreadNotifs.map(n => n.id);
+                
+                api.markNotificationsAsRead(unreadIds).catch(err => {
+                    console.error("Failed to mark notifications as read on server:", err);
+                });
+                
+                const updatedNotifications = getState().notifications.map(n => {
+                    if (unreadIds.includes(n.id)) return { ...n, read: true };
+                    return n;
+                });
+                setState({ notifications: updatedNotifications });
+                
+                badge?.remove();
+                dropdown.querySelectorAll('.notification-item.unread').forEach(item => {
+                    item.classList.remove('unread');
+                });
+            }
+        }
+    });
+
+    if (!notificationDropdownListenerAttached) {
+        document.addEventListener('click', (e) => {
+            const openDropdown = document.querySelector('.notifications-dropdown.visible');
+            if (openDropdown && !openDropdown.closest('.notification-bell').contains(e.target)) {
+                openDropdown.classList.remove('visible');
+            }
+        });
+        notificationDropdownListenerAttached = true;
+    }
+
+    renderNotificationsDropdown(dropdown, studentNotifications);
+
+    return notificationBell;
+}
+
 
 const renderChatHistory = (container, chatHistory) => {
     const { currentStudent } = getState();
@@ -259,12 +349,13 @@ export const renderStudentPortal = () => {
             ])
         ]),
         el('div', { className: 'header-right' }, [
+            renderNotificationBell(),
             el('span', { className: 'header-welcome-text' }, [`Welcome, ${currentStudent.name.split(' ')[0]}`]),
             el('div', { className: 'user-avatar' }, [currentStudent.name.charAt(0).toUpperCase()]),
             el('button', { className: 'btn btn-icon-only', title: 'Logout' }, ['🚪'])
         ])
     ]);
-    studentHeader.querySelector('button').addEventListener('click', handleLogout);
+    studentHeader.querySelector('button[title="Logout"]').addEventListener('click', handleLogout);
     
     const mainContentContainer = el('main', { className: 'student-portal-view' });
     mainContentContainer.appendChild(renderStudentDashboard(mainContentContainer));

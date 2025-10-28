@@ -6,23 +6,13 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { getState, setState } from '../state.js';
 import { showToast } from "../ui/dom-utils.js";
-import { showApiKeyModal } from "../ui/views/teacher-shell.js";
 
-const getAiClient = () => {
-    const { geminiApiKey } = getState();
-    if (!geminiApiKey) {
-        showToast("Please set your Gemini API Key in the settings.", "error");
-        showApiKeyModal();
-        return null;
-    }
-    return new GoogleGenAI({ apiKey: geminiApiKey });
-};
+// As per guidelines, the API key is sourced from environment variables.
+// The UI for setting the key has been removed for security and simplicity.
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export const geminiService = {
     async generateQuiz(topic, numQuestions) {
-        const ai = getAiClient();
-        if (!ai) return null;
-
         try {
             const response = await ai.models.generateContent({
                 model: "gemini-2.5-flash",
@@ -53,15 +43,12 @@ export const geminiService = {
             return JSON.parse(response.text).quiz;
         } catch (error) {
             console.error("Error generating quiz:", error);
-            showToast("AI Quiz generation failed. Please check your API key and try again.", "error");
+            showToast("AI Quiz generation failed. Please check the console for details.", "error");
             return null;
         }
     },
 
     async generateLessonPlan(topic, grade, weeks) {
-        const ai = getAiClient();
-        if (!ai) return null;
-
         const prompt = `Generate a ${weeks}-week lesson plan for the topic "${topic}" for ${grade}. Include learning objectives, a week-by-week breakdown of topics, suggested class activities or projects, and assessment methods.`;
         try {
             const response = await ai.models.generateContent({
@@ -102,15 +89,12 @@ export const geminiService = {
             return JSON.parse(response.text).plan;
         } catch (error) {
             console.error("Error generating lesson plan:", error);
-            showToast("AI Lesson Plan generation failed. Please check your API key and try again.", "error");
+            showToast("AI Lesson Plan generation failed. Please check the console for details.", "error");
             return null;
         }
     },
 
     async generateTimetable(classes, offLimits, teachersAndSubjects) {
-        const ai = getAiClient();
-        if (!ai) return null;
-
         const prompt = `
             You are an expert school scheduler. Create a 5-day (Monday-Friday) weekly timetable from 09:00 to 16:00, with 1-hour slots.
             
@@ -161,15 +145,12 @@ export const geminiService = {
             return JSON.parse(response.text).scheduleByTime;
         } catch (error) {
             console.error("Error generating timetable:", error);
-            showToast("AI Timetable generation failed. The model might be unable to find a valid schedule. Please check your constraints and API key.", "error");
+            showToast("AI Timetable generation failed. Please check constraints and console for details.", "error");
             return null;
         }
     },
     
     async generateSimpleText(prompt) {
-        const ai = getAiClient();
-        if (!ai) return null;
-
         try {
             const response = await ai.models.generateContent({
                 model: "gemini-2.5-flash",
@@ -178,15 +159,13 @@ export const geminiService = {
             return response.text;
         } catch (error) {
             console.error("Error generating text:", error);
-            showToast("An AI generation task failed. Please check your API key.", "error");
+            showToast("An AI generation task failed. Please check the console for details.", "error");
             return null;
         }
     },
     
     async startChat() {
-        const ai = getAiClient();
         const state = getState();
-        if (!ai) return null;
         
         const chat = ai.chats.create({
             model: 'gemini-2.5-flash',
@@ -205,9 +184,6 @@ export const geminiService = {
     },
 
     async generateExamQuestions(topic, questionCounts) {
-        const ai = getAiClient();
-        if (!ai) return null;
-
         const { mcq, short_answer, paragraph } = questionCounts;
         const prompt = `Generate an exam on the topic: "${topic}".
         It should contain:
@@ -246,15 +222,12 @@ export const geminiService = {
             return JSON.parse(response.text).questions;
         } catch (error) {
             console.error("Error creating examination:", error);
-            showToast('Failed to generate exam questions. Please check your API key and try again.', 'error');
+            showToast('Failed to generate exam questions. Please check the console for details.', 'error');
             return null;
         }
     },
 
     async gradeEssay(prompt, essay) {
-        const ai = getAiClient();
-        if (!ai) return null;
-
         const fullPrompt = `
             You are an AI teaching assistant. Grade the following student essay based on the provided prompt. 
             Provide constructive feedback covering clarity, relevance to the prompt, and grammar.
@@ -283,15 +256,12 @@ export const geminiService = {
             return JSON.parse(response.text);
         } catch (error) {
             console.error("AI grading error:", error);
-            showToast("Failed to get AI feedback. Please check your API key.", "error");
+            showToast("Failed to get AI feedback. Please check the console for details.", "error");
             return null;
         }
     },
 
     async gradeExamAnswers(questionsAndAnswers) {
-        const ai = getAiClient();
-        if (!ai) return null;
-        
         const prompt = `You are an AI teaching assistant. Grade the student's answers for the following questions.
         Compare the student's answer to the provided model answer.
         - For 'short_answer' type, assign a score of 1 for a correct/very similar answer, and 0 otherwise.
@@ -330,15 +300,12 @@ export const geminiService = {
             return JSON.parse(response.text).scores;
         } catch (error) {
             console.error("AI exam grading error:", error);
-            showToast("AI failed to grade written answers. They will be marked as 0.", "error");
+            showToast("AI failed to grade written answers. Please check the console for details.", "error");
             return null;
         }
     },
 
     async generateDifferentiatedMaterials(topic) {
-        const ai = getAiClient();
-        if (!ai) return null;
-
         try {
             const response = await ai.models.generateContent({
                 model: "gemini-2.5-flash",
@@ -368,15 +335,12 @@ export const geminiService = {
             return JSON.parse(response.text).materials;
         } catch (error) {
              console.error("Error generating differentiated materials:", error);
-             showToast("Failed to generate materials. Please check your API key.", "error");
+             showToast("Failed to generate materials. Please check the console for details.", "error");
              return null;
         }
     },
 
     async generateProactiveMessage(studentName, subject, score, totalQuestions) {
-        const ai = getAiClient();
-        if (!ai) return null;
-
         const prompt = `A student named ${studentName} just completed an exam in ${subject} and scored ${score} out of ${totalQuestions}.
         Write a short, friendly, and encouraging message (2-3 sentences) for their AI Study Buddy to display when they next open it.
         The message should acknowledge their effort, gently offer help with the topic, and avoid sounding judgmental.

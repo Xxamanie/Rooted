@@ -19,12 +19,31 @@ export default async function handler(req, res) {
                 feedback, 
                 score 
             };
+
+            // Create a notification for the student
+            const assignment = db.essayAssignments.find(a => a.id === assignmentId);
+            if (assignment) {
+                const newNotification = {
+                    id: `notif-${Date.now()}`,
+                    studentId: studentId,
+                    message: `Your essay "${assignment.title}" has been graded! You scored ${score}/100.`,
+                    timestamp: new Date().toISOString(),
+                    read: false,
+                    type: 'grade'
+                };
+                if (!db.notifications) {
+                    db.notifications = [];
+                }
+                db.notifications.push(newNotification);
+            }
+
             await setData(db);
             res.status(200).json(db.essaySubmissions[subIndex]);
         } else {
             res.status(404).json({ message: 'Submission not found.' });
         }
-    } catch (error) {
+    } catch (error)
+ {
         console.error('Error in update-essay-feedback:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }

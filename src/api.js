@@ -236,6 +236,10 @@ export const api = {
         return del(`/api/data/tasks/${id}`);
     },
 
+    async markNotificationsAsRead(notificationIds) {
+        return put('/api/actions/mark-notifications-read', { notificationIds });
+    },
+
     // Creator APIs
     async registerSchool(schoolName, subscriptionDetails) {
         const code = 'SMRT-' + Math.random().toString(36).substring(2, 6).toUpperCase();

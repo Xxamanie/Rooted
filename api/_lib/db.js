@@ -45,6 +45,7 @@ const getSeedData = () => ({
     essayAssignments: [],
     essaySubmissions: [],
     grades: [],
+    notifications: [],
     lessonPlans: [],
     accessCodes: [],
     parentAccessCodes: [],

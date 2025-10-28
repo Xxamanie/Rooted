@@ -79,13 +79,15 @@ export const hideViewEssayModal = () => {
     }
 };
 
-const handleAIAssistedGrade = async (assignmentId, studentId, feedbackBox, scoreInput, feedbackInput) => {
+const handleAIAssistedGrade = async (assignmentId, studentId, feedbackBox, scoreInput, feedbackInput, aiButton) => {
     const { essayAssignments, essaySubmissions } = getState();
     const assignment = essayAssignments.find(a => a.id === assignmentId);
     const submission = essaySubmissions.find(s => s.assignmentId === assignmentId && s.studentId === studentId);
     if (!assignment || !submission) return;
 
-    feedbackBox.textContent = 'Analyzing essay...';
+    aiButton.disabled = true;
+    showSpinner('.ai-grading-section');
+    feedbackBox.innerHTML = ''; // Clear initial text
     
     const result = await aiService.gradeEssay(assignment.prompt, submission.submissionText);
     
@@ -100,6 +102,9 @@ const handleAIAssistedGrade = async (assignmentId, studentId, feedbackBox, score
     } else {
         renderChildren(feedbackBox, [el('p', { style: { color: 'red' } }, ['Failed to get AI feedback.'])]);
     }
+
+    hideSpinner('.ai-grading-section');
+    aiButton.disabled = false;
 };
 
 const handleSaveEssayGrade = async (assignmentId, studentId) => {
@@ -129,7 +134,7 @@ const renderViewAndGradeEssayModal = (assignmentId, studentId) => {
     const finalFeedbackInput = el('textarea', { id: 'final-essay-feedback', className: 'form-group', rows: 3, textContent: submission.feedback ?? '' });
 
     const aiButton = el('button', { className: 'btn btn-secondary', style: { width: 'auto', padding: '5px 10px', fontSize: '14px', marginLeft: '10px' } }, ['Run AI Analysis']);
-    aiButton.addEventListener('click', () => handleAIAssistedGrade(assignmentId, studentId, feedbackBox, finalScoreInput, finalFeedbackInput));
+    aiButton.addEventListener('click', () => handleAIAssistedGrade(assignmentId, studentId, feedbackBox, finalScoreInput, finalFeedbackInput, aiButton));
     
     const gradeForm = el('form', {}, [
         el('div', { className: 'form-row' }, [
@@ -149,6 +154,14 @@ const renderViewAndGradeEssayModal = (assignmentId, studentId) => {
         handleSaveEssayGrade(assignmentId, studentId);
     });
 
+    const aiGradingSection = el('div', { className: 'ai-grading-section', style: { position: 'relative' } }, [
+        el('div', { className: 'spinner-overlay' }, [el('div', { className: 'spinner' })]),
+        el('div', { className: 'ai-grading-feedback' }, [
+            el('h5', {}, ['AI-Assisted Grading ', aiButton]),
+            feedbackBox
+        ]),
+    ]);
+
     const modalContent = el('div', { className: 'modal-content', style: { maxWidth: '800px' } }, [
         el('button', { className: 'modal-close-btn' }, ['×']),
         el('h3', {}, [`Essay: ${assignment.title}`]),
@@ -156,10 +169,7 @@ const renderViewAndGradeEssayModal = (assignmentId, studentId) => {
         el('hr'),
         el('h4', {}, ['Student\'s Submission']),
         el('div', { className: 'management-list', style: { maxHeight: '200px', overflowY: 'auto', background: '#f8f9fa', padding: '15px', borderRadius: '8px', whiteSpace: 'pre-wrap' } }, [submission.submissionText]),
-        el('div', { className: 'ai-grading-feedback' }, [
-            el('h5', {}, ['AI-Assisted Grading ', aiButton]),
-            feedbackBox
-        ]),
+        aiGradingSection,
         el('hr'),
         el('h4', {}, ['Final Grade & Feedback']),
         gradeForm
@@ -256,25 +266,22 @@ export const renderClassroomView = () => {
             return;
         }
 
-        const assignment = essayAssignments.find(a => a.id === assignmentId);
-        const studentsInClass = students.filter(s => s.class === assignment?.className);
-        
-        if (studentsInClass.length === 0) {
-            renderChildren(essaySubmissionsContainer, [el('p', { className: 'placeholder-text' }, ['No students in the assigned class.'])]);
+        const submissionsForAssignment = essaySubmissions.filter(s => s.assignmentId === assignmentId);
+
+        if (submissionsForAssignment.length === 0) {
+            renderChildren(essaySubmissionsContainer, [el('p', { className: 'placeholder-text' }, ['No submissions received for this assignment yet.'])]);
             return;
         }
 
-        const submissionElements = studentsInClass.map(student => {
-            const submission = essaySubmissions.find(s => s.studentId === student.id && s.assignmentId === assignmentId);
-            const statusElement = submission
-                ? submission.score !== undefined
-                    ? el('span', { className: 'status graded' }, [`Graded: ${submission.score}/100`])
-                    : el('span', { className: 'status submitted' }, ['Submitted'])
-                : el('span', { className: 'status pending' }, ['Not Submitted']);
+        const submissionElements = submissionsForAssignment.map(submission => {
+            const student = students.find(s => s.id === submission.studentId);
+            if (!student) return null; // Skip if student data is missing
+
+            const statusElement = submission.score !== undefined
+                ? el('span', { className: 'status graded' }, [`Graded: ${submission.score}/100`])
+                : el('span', { className: 'status submitted' }, ['Submitted']);
             
-            const actionButton = submission 
-                ? el('button', { className: 'btn btn-secondary', 'data-assignment-id': assignmentId, 'data-student-id': student.id }, ['View & Grade'])
-                : el('button', { className: 'btn btn-secondary', disabled: true }, ['View']);
+            const actionButton = el('button', { className: 'btn btn-secondary', 'data-assignment-id': assignmentId, 'data-student-id': student.id }, ['View & Grade']);
             
             actionButton.addEventListener('click', () => {
                 document.body.appendChild(renderViewAndGradeEssayModal(assignmentId, student.id));
@@ -287,7 +294,7 @@ export const renderClassroomView = () => {
                 ]),
                 el('div', { className: 'submission-actions' }, [actionButton])
             ]);
-        });
+        }).filter(Boolean); // Filter out nulls
         
         renderChildren(essaySubmissionsContainer, submissionElements);
     };

@@ -1550,6 +1550,116 @@ input:checked + .switch:before {
 }
 .student-card.clickable:hover {
     transform: translateY(-5px);
+}
+
+/* === NOTIFICATION SYSTEM === */
+.notification-bell {
+    position: relative;
+    cursor: pointer;
+}
+.notification-bell .btn-icon-only {
+    position: relative;
+    z-index: 1;
+}
+.notification-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 18px;
+    height: 18px;
+    background-color: var(--danger-color);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: bold;
+    border: 2px solid var(--card-background);
+    z-index: 2;
+    transform: translate(30%, -30%);
+}
+.notifications-dropdown {
+    display: none;
+    position: absolute;
+    top: 120%;
+    right: 0;
+    width: 350px;
+    background: var(--card-background);
+    border-radius: 12px;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-color);
+    z-index: 1200;
+    overflow: hidden;
+}
+.notifications-dropdown.visible {
+    display: block;
+    animation: fadeIn 0.2s ease-out;
+}
+.notifications-header {
+    padding: 15px;
+    font-weight: 600;
+    color: var(--text-dark);
+    border-bottom: 1px solid var(--border-color);
+}
+.notifications-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+.notification-item {
+    display: flex;
+    gap: 12px;
+    padding: 15px;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+.notification-item:last-child {
+    border-bottom: none;
+}
+.notification-item.unread {
+    background-color: #f8f9fa;
+}
+.notification-item:hover {
+    background-color: #e9ecef;
+}
+.notification-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+.notification-content p {
+    margin: 0;
+    line-height: 1.5;
+    color: var(--text-medium);
+}
+.notification-content .timestamp {
+    font-size: 12px;
+    color: var(--text-light);
+    margin-top: 4px;
+}
+.notification-actions {
+    margin-left: auto;
+}
+.dismiss-btn {
+    background: none;
+    border: none;
+    color: var(--text-light);
+    cursor: pointer;
+    font-size: 20px;
+    padding: 0 5px;
+}
+.dismiss-btn:hover {
+    color: var(--danger-color);
+}
+.notifications-footer {
+    padding: 10px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-light);
+    border-top: 1px solid var(--border-color);
+}
+
 /* === GLOBAL STYLES === */
 body {
   margin: 0;
@@ -1756,6 +1866,27 @@ th {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #00796b;
+}
+
+/* === AI GRADE MODAL === */
+.modal-prompt, .modal-submission-text {
+    background: var(--background-light);
+    padding: 15px;
+    border-radius: 8px;
+    margin: 10px 0;
+    max-height: 150px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    border: 1px solid var(--border-color);
+    font-size: 14px;
+    line-height: 1.6;
+}
+.modal-ai-score {
+    font-size: 1.2em;
+    font-weight: 600;
+    text-align: right;
+    margin-top: 15px;
+    color: var(--primary-green-dark);
 }
 
 /* === RESPONSIVE === */
