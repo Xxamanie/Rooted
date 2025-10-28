@@ -176,6 +176,10 @@ export const api = {
         return post('/api/data/completedExams', {...completedExam, proctoringFlags: []});
     },
 
+    async updateCompletedExam(updateData) {
+        return put('/api/actions/update-completed-exam', updateData);
+    },
+
     async addProctoringFlag(studentId, examId, event) {
         return post('/api/actions/add-proctoring-flag', { studentId, examId, event });
     },

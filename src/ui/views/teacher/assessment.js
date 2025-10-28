@@ -526,7 +526,6 @@ const submitAndGradeExam = async (examId) => {
     const form = examModal?.querySelector('#student-exam-form');
     
     if (!exam || !student || !form) {
-        stopStudentWebcam();
         hideViewExamModal();
         return;
     };
@@ -591,7 +590,12 @@ const submitAndGradeExam = async (examId) => {
         });
     }
 
-    await api.addCompletedExam({ studentId: student.id, examId: exam.id, score: totalScore, scaledScore: finalPercentage});
+    await api.updateCompletedExam({ 
+        studentId: student.id, 
+        examId: exam.id, 
+        score: totalScore, 
+        scaledScore: finalPercentage 
+    });
     
     // Save to main grade book ("assessment sheet")
     await api.updateGrade({
@@ -653,12 +657,17 @@ export const hideViewExamModal = () => {
     }
     
     stopStudentWebcam();
+    if (activeExamProctoringListeners) {
+        activeExamProctoringListeners();
+    }
     const proctorView = document.getElementById('student-proctor-view');
     if(proctorView) proctorView.remove();
 
     examModal.classList.remove('visible');
-    setTimeout(() => examModal.remove(), 300);
-    examModal = null;
+    setTimeout(() => { 
+        examModal?.remove();
+        examModal = null;
+    }, 300);
 };
 
 const showProctoringModal = (examId) => {
@@ -673,7 +682,10 @@ const showProctoringModal = (examId) => {
         const examRecord = studentsTakingExam.find(s => s.studentId === student.id);
         let status, flags;
         if (examRecord) {
-            status = el('span', { className: 'status submitted' }, ['In Progress']);
+            status = examRecord.scaledScore > 0
+                ? el('span', { className: 'status submitted' }, ['Completed'])
+                : el('span', { className: 'status in-progress' }, ['In Progress']);
+
             flags = examRecord.proctoringFlags.length > 0
                 ? el('ul', {}, examRecord.proctoringFlags.map(f => el('li', {}, [`${f.timestamp}: ${f.event}`])))
                 : el('span', {}, ['No flags']);
@@ -724,7 +736,7 @@ export const renderViewExamModal = (examId) => {
 
     if (state.currentStudent) { // Student taking exam
         const completed = state.completedExams.find(c => c.examId === examId && c.studentId === state.currentStudent.id);
-        if (completed && completed.score > 0) { // Check if it's already graded
+        if (completed && completed.scaledScore > 0) {
             showToast('You have already completed this exam.', 'info');
             return;
         }
