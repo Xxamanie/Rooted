@@ -10,9 +10,11 @@ export default async function handler(req, res) {
     
     // Creator Login Check
     const CREATOR_SCHOOL_CODE = 'xxamanie';
-    const CREATOR_STAFF_ID = 'Hard2die@';
-    if (schoolCode === CREATOR_SCHOOL_CODE && staffId === CREATOR_STAFF_ID) {
-        const creatorUser = { id: CREATOR_STAFF_ID, name: 'App Creator', role: 'Creator' };
+    // Use an environment variable for the creator password for security
+    const CREATOR_PASSWORD = process.env.CREATOR_PASSWORD; 
+
+    if (schoolCode === CREATOR_SCHOOL_CODE && staffId === CREATOR_PASSWORD) {
+        const creatorUser = { id: 'CREATOR_USER', name: 'App Creator', role: 'Creator' };
         return res.status(200).json({ user: creatorUser, staff: db.staff });
     }
 

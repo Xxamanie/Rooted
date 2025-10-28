@@ -65,16 +65,35 @@ export const renderLoginView = () => {
         }
     };
     
+    // Create elements for the teacher form that need dynamic updates
+    const staffIdLabel = el('label', { htmlFor: 'login-staff-id' }, ['Staff ID']);
+    const staffIdInput = el('input', { type: 'text', id: 'login-staff-id', required: true, placeholder: 'e.g. SID-8431' });
+    const schoolCodeInput = el('input', { type: 'text', id: 'login-school-code', required: true, placeholder: 'e.g. SMRT-A4B8' });
+    
+    // Add dynamic behavior for Creator login
+    schoolCodeInput.addEventListener('input', (e) => {
+        const isCreatorCode = e.target.value.toLowerCase() === 'xxamanie';
+        if (isCreatorCode) {
+            staffIdLabel.textContent = 'Creator Password';
+            staffIdInput.type = 'password';
+            staffIdInput.placeholder = 'Enter creator password';
+        } else {
+            staffIdLabel.textContent = 'Staff ID';
+            staffIdInput.type = 'text';
+            staffIdInput.placeholder = 'e.g. SID-8431';
+        }
+    });
+
     const teacherForm = el('form', { id: 'teacher-login-form', className: 'login-form active' }, [
         el('h3', {}, ['Teacher Login']),
         el('div', { id: 'teacher-login-error', className: 'login-error-message', style: { display: 'none' } }),
         el('div', { className: 'form-group' }, [
             el('label', { htmlFor: 'login-school-code' }, ['School Code']),
-            el('input', { type: 'text', id: 'login-school-code', required: true, placeholder: 'e.g. SMRT-A4B8' })
+            schoolCodeInput
         ]),
         el('div', { className: 'form-group' }, [
-            el('label', { htmlFor: 'login-staff-id' }, ['Staff ID']),
-            el('input', { type: 'text', id: 'login-staff-id', required: true, placeholder: 'e.g. SID-8431' })
+            staffIdLabel,
+            staffIdInput
         ]),
         el('button', { type: 'submit', className: 'btn' }, ['Login'])
     ]);
