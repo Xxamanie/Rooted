@@ -13,8 +13,7 @@ import { renderDashboardView } from "./teacher/dashboard.js";
 import { renderAnalyticsView } from "./teacher/analytics.js";
 import { renderAdminView } from "./teacher/admin.js";
 import { renderClassroomView } from "./teacher/classroom.js";
-import { renderRecordsView } from "./teacher/records.js";
-import { renderSchemeView } from "./teacher/scheme.js";
+import { renderTeachersDeskView } from "./teacher/teachers-desk.js";
 import { renderAssessmentView, renderExaminationView } from "./teacher/assessment.js";
 import { renderReportsView } from "./teacher/reports.js";
 import { renderTimetableView } from "./teacher/timetable.js";
@@ -22,7 +21,6 @@ import { renderProgressView } from "./teacher/progress.js";
 import { renderTuitionView } from "./teacher/tuition.js";
 import { renderResultsView } from "./teacher/results.js";
 import { renderCreatorView } from "./teacher/creator.js";
-import { renderLessonPlansView } from "./teacher/lesson-plans.js";
 
 
 let apiKeyModal;
@@ -139,9 +137,7 @@ const createSidebar = () => {
         { section: 'analytics', icon: '📊', text: 'Analytics', adminOnly: true },
         { section: 'admin', icon: '⚙️', text: 'Admin Panel', adminOnly: true },
         { section: 'classroom', icon: '🏫', text: 'Virtual Classroom' },
-        { section: 'records', icon: '📋', text: 'Record of Work' },
-        { section: 'scheme', icon: '📚', text: 'Scheme of Work' },
-        { section: 'lesson-plans', icon: '🗓️', text: 'Lesson Plans' },
+        { section: 'teachers-desk', icon: ' M', text: 'Teacher\'s Desk' },
         { section: 'assessment', icon: '✍️', text: 'Assessment Center' },
         { section: 'examination', icon: '📝', text: 'Online Examination' },
         { section: 'reports', icon: '🎓', text: 'Report Cards' },
@@ -215,9 +211,7 @@ export const renderTeacherShell = () => {
     registerView('analytics', renderAnalyticsView);
     registerView('admin', renderAdminView);
     registerView('classroom', renderClassroomView);
-    registerView('records', renderRecordsView);
-    registerView('scheme', renderSchemeView);
-    registerView('lesson-plans', renderLessonPlansView);
+    registerView('teachers-desk', renderTeachersDeskView);
     registerView('assessment', renderAssessmentView);
     registerView('examination', renderExaminationView);
     registerView('reports', renderReportsView);
@@ -240,7 +234,7 @@ export const renderTeacherShell = () => {
             }
         });
         const viewName = currentView.charAt(0).toUpperCase() + currentView.slice(1);
-        const viewTitle = viewName.replace(/([A-Z])/g, ' $1').trim();
+        const viewTitle = viewName.replace(/([A-Z])/g, ' $1').trim().replace('Teachers Desk', 'Teacher\'s Desk');
         pageTitle.textContent = viewTitle;
     };
     

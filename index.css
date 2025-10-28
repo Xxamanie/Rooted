@@ -2610,6 +2610,38 @@ input:checked + .switch:before {
     animation: fadeIn 0.5s ease;
 }
 
+/* Generic Panel Navigation (for Teacher's Desk etc.) */
+.panel-nav {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+    border-bottom: 2px solid var(--primary-green-light);
+    padding-bottom: 15px;
+    flex-wrap: wrap;
+}
+.panel-nav-btn {
+    padding: 10px 20px;
+    border: none;
+    background-color: var(--background-light);
+    color: var(--text-medium);
+    font-weight: 600;
+    border-radius: 8px 8px 0 0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-bottom: 2px solid transparent;
+}
+.panel-nav-btn:hover {
+    background-color: #e2e6ea;
+    color: var(--primary-green-dark);
+}
+.panel-nav-btn.active {
+    background-color: var(--primary-green-dark);
+    color: white;
+    transform: translateY(2px);
+    border-bottom-color: var(--accent-gold);
+}
+
+
 @media (max-width: 576px) {
     .login-form {
         padding: 25px 20px;
