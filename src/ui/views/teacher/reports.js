@@ -6,7 +6,7 @@
 import { el, renderChildren, showToast, showSpinner, hideSpinner, simpleMarkdownToNodes } from "../../dom-utils.js";
 import { getState } from "../../../state.js";
 import { api } from "../../../api.js";
-import { getLetterGrade } from "../utils.js";
+import { getLetterGrade } from "../../utils.js";
 import { aiService } from "../../../services/ai.js";
 
 const populateStudentSelector = (selectElement) => {
