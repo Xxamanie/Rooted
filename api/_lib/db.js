@@ -51,6 +51,8 @@ const getSeedData = () => ({
     questionBank: [],
     timetable: null,
     tasks: [],
+    broadcastMessage: null,
+    adminMessage: null,
 });
 
 export const getData = async () => {

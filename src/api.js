@@ -254,24 +254,21 @@ export const api = {
         return put(`/api/data/schools/${schoolId}`, { subscription: newSubscriptionDetails });
     },
     
-    // Broadcast/Admin messages are client-side only for simplicity, as they don't require persistence for this demo.
-    broadcastMessage(message) {
-        localStorage.setItem('smartschool_broadcastMessage', JSON.stringify({ message, timestamp: Date.now() }));
+    async broadcastMessage(message) {
+        const newBroadcast = await post('/api/actions/broadcast-message', { message });
+        setState({ broadcastMessage: newBroadcast }); // Optimistic update for sender
     },
-    getBroadcastMessage() {
-        return JSON.parse(localStorage.getItem('smartschool_broadcastMessage') || 'null');
+    async clearBroadcastMessage() {
+        await del('/api/actions/broadcast-message');
+        setState({ broadcastMessage: null }, { rerender: true });
     },
-    clearBroadcastMessage() {
-        localStorage.removeItem('smartschool_broadcastMessage');
+    async sendAdminMessage(message) {
+        const newAdminMessage = await post('/api/actions/admin-message', { message });
+        setState({ adminMessage: newAdminMessage }); // Optimistic update for sender
     },
-    sendAdminMessage(message) {
-        localStorage.setItem('smartschool_adminMessage', JSON.stringify({ message, timestamp: Date.now() }));
-    },
-    getAdminMessage() {
-        return JSON.parse(localStorage.getItem('smartschool_adminMessage') || 'null');
-    },
-    clearAdminMessage() {
-        localStorage.removeItem('smartschool_adminMessage');
+    async clearAdminMessage() {
+        await del('/api/actions/admin-message');
+        setState({ adminMessage: null }, { rerender: true });
     },
     resetAllData() {
         // This is now a server-side action

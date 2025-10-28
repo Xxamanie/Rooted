@@ -15,12 +15,10 @@ import { renderAdminView } from "./teacher/admin.js";
 import { renderClassroomView } from "./teacher/classroom.js";
 import { renderTeachersDeskView } from "./teacher/teachers-desk.js";
 import { renderAssessmentView, renderExaminationView } from "./teacher/assessment.js";
-import { renderReportsView } from "./teacher/reports.js";
 import { renderTimetableView } from "./teacher/timetable.js";
-import { renderProgressView } from "./teacher/progress.js";
 import { renderTuitionView } from "./teacher/tuition.js";
-import { renderResultsView } from "./teacher/results.js";
 import { renderCreatorView } from "./teacher/creator.js";
+import { renderResultsPanelView } from "./teacher/results-panel.js";
 
 
 let apiKeyModal;
@@ -140,11 +138,9 @@ const createSidebar = () => {
         { section: 'teachers-desk', icon: ' M', text: 'Teacher\'s Desk' },
         { section: 'assessment', icon: '✍️', text: 'Assessment Center' },
         { section: 'examination', icon: '📝', text: 'Online Examination' },
-        { section: 'reports', icon: '🎓', text: 'Report Cards' },
+        { section: 'results', icon: '🏅', text: 'Results' },
         { section: 'timetable', icon: '📅', text: 'Timetable Generator' },
-        { section: 'progress', icon: '📈', text: 'Progress Tracker' },
         { section: 'tuition', icon: '💰', text: 'Tuition' },
-        { section: 'results', icon: '🏅', text: 'Results Access' },
     ];
     
     const navLinks = navItems
@@ -185,15 +181,15 @@ const createSidebar = () => {
 };
 
 const renderAdminBanner = () => {
-    const adminMessage = api.getAdminMessage();
+    const { adminMessage } = getState();
     if (adminMessage) {
         const banner = el('div', { className: 'admin-banner' }, [
             el('span', {}, [adminMessage.message]),
             el('button', { className: 'close-admin-btn' }, ['×'])
         ]);
-        banner.querySelector('.close-admin-btn').addEventListener('click', () => {
-            api.clearAdminMessage();
-            banner.remove();
+        banner.querySelector('.close-admin-btn').addEventListener('click', async () => {
+            banner.querySelector('button').disabled = true;
+            await api.clearAdminMessage();
         });
         return banner;
     }
@@ -214,11 +210,9 @@ export const renderTeacherShell = () => {
     registerView('teachers-desk', renderTeachersDeskView);
     registerView('assessment', renderAssessmentView);
     registerView('examination', renderExaminationView);
-    registerView('reports', renderReportsView);
+    registerView('results', renderResultsPanelView);
     registerView('timetable', renderTimetableView);
-    registerView('progress', renderProgressView);
     registerView('tuition', renderTuitionView);
-    registerView('results', renderResultsView);
 
     const pageTitle = el('h1', { id: 'pageTitle' }, ['Dashboard']);
     const contentBody = el('div', { className: 'content-body' });

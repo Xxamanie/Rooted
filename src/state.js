@@ -33,6 +33,8 @@ let state = {
     openaiApiKey: null,
     aiProvider: 'gemini', // 'gemini' or 'openai'
     isLiveMode: false,
+    broadcastMessage: null,
+    adminMessage: null,
 };
 
 export const getState = () => {

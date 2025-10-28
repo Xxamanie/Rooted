@@ -9,15 +9,15 @@ import { el } from './src/ui/dom-utils.js';
 const appContainer = document.getElementById('app');
 
 const renderBroadcastBanner = () => {
-    const broadcast = api.getBroadcastMessage();
+    const { broadcastMessage: broadcast } = getState();
     if (broadcast) {
         const banner = el('div', { className: 'broadcast-banner' }, [
             el('span', {}, [broadcast.message]),
             el('button', { className: 'close-broadcast-btn' }, ['×'])
         ]);
-        banner.querySelector('.close-broadcast-btn').addEventListener('click', () => {
-            api.clearBroadcastMessage();
-            banner.remove();
+        banner.querySelector('.close-broadcast-btn').addEventListener('click', async () => {
+            banner.querySelector('button').disabled = true;
+            await api.clearBroadcastMessage();
         });
         return banner;
     }
