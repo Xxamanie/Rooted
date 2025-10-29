@@ -15,6 +15,8 @@ const renderStaffList = () => {
         if (confirmed) {
             showToast('Removing staff...', 'info');
             await api.removeStaff(id);
+            const { staff } = getState();
+            setState({ staff: staff.filter(s => s.id !== id) });
             document.dispatchEvent(new CustomEvent('render-view'));
             showToast('Staff removed.', 'success');
         }
@@ -42,6 +44,13 @@ const renderStudentList = () => {
         if (confirmed) {
             showToast('Removing student...', 'info');
             await api.removeStudent(id);
+            const { students, tuitionRecords, grades } = getState();
+            // Mimic backend cascade delete for a responsive UI
+            setState({
+                students: students.filter(s => s.id !== id),
+                tuitionRecords: tuitionRecords.filter(t => t.studentId !== id),
+                grades: grades.filter(g => g.studentId !== id)
+            });
             document.dispatchEvent(new CustomEvent('render-view'));
             showToast('Student removed.', 'success');
         }
@@ -69,6 +78,8 @@ const renderParentList = () => {
         if (confirmed) {
             showToast('Removing parent...', 'info');
             await api.removeParent(id);
+            const { parents } = getState();
+            setState({ parents: parents.filter(p => p.id !== id) });
             document.dispatchEvent(new CustomEvent('render-view'));
             showToast('Parent removed.', 'success');
         }
@@ -170,6 +181,8 @@ export const renderAdminView = () => {
         const newStaff = await api.addStaff(nameInput.value, roleInput.value);
         showToast(`Staff '${newStaff.name}' added! <br><strong>ID: ${newStaff.id}</strong>`, 'success');
         form.reset();
+        const { staff } = getState();
+        setState({ staff: [...staff, newStaff] });
         document.dispatchEvent(new CustomEvent('render-view'));
     };
     
@@ -184,6 +197,13 @@ export const renderAdminView = () => {
         const newStudent = await api.addStudent(nameInput.value, classInput.value);
         showToast(`Student '${newStudent.name}' added! <br><strong>ID: ${newStudent.id}</strong>`, 'success');
         form.reset();
+        const { students, tuitionRecords } = getState();
+        // Mimic backend logic of adding a tuition record for a responsive UI
+        const newTuitionRecord = { studentId: newStudent.id, status: 'Owing', amount: 500 };
+        setState({
+            students: [...students, newStudent],
+            tuitionRecords: [...tuitionRecords, newTuitionRecord]
+        });
         document.dispatchEvent(new CustomEvent('render-view'));
     };
     
@@ -200,6 +220,8 @@ export const renderAdminView = () => {
         if (newParent) {
             showToast(`Parent '${newParent.name}' added! <br><strong>ID: ${newParent.id}</strong>`, 'success');
             form.reset();
+            const { parents } = getState();
+            setState({ parents: [...parents, newParent] });
             document.dispatchEvent(new CustomEvent('render-view'));
         }
     };
