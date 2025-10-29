@@ -1,10 +1,8 @@
 // In a Vercel environment, you have access to Node.js modules
-import { promises as fs } from 'fs';
-import path from 'path';
+import { kv } from '@vercel/kv';
 
-// Vercel provides a writable /tmp directory
-const DB_PATH = path.join('/tmp', 'smartschool_db.json');
-let dbCache = null;
+// The entire database will be stored under a single key for simplicity.
+const DB_KEY = 'smartschool_db';
 
 const getSeedData = () => ({
     schools: [
@@ -56,28 +54,29 @@ const getSeedData = () => ({
     adminMessage: null,
 });
 
+// Use an in-memory cache to reduce KV reads within a single function invocation.
+// This is safe because serverless function instances are short-lived.
+let dbCache = null;
+
 export const getData = async () => {
-    // Use in-memory cache to avoid reading the file on every single request
     if (dbCache) return dbCache;
 
-    try {
-        const fileContent = await fs.readFile(DB_PATH, 'utf-8');
-        dbCache = JSON.parse(fileContent);
-        return dbCache;
-    } catch (error) {
-        // If the file doesn't exist, create it with seed data
-        if (error.code === 'ENOENT') {
-            const seedData = getSeedData();
-            await fs.writeFile(DB_PATH, JSON.stringify(seedData, null, 2), 'utf-8');
-            dbCache = seedData;
-            return dbCache;
-        }
-        throw error;
+    let data = await kv.get(DB_KEY);
+
+    if (!data) {
+        console.log('No data found in KV, seeding database...');
+        const seedData = getSeedData();
+        await kv.set(DB_KEY, seedData);
+        dbCache = seedData;
+        return seedData;
     }
+    
+    dbCache = data;
+    return data;
 };
 
 export const setData = async (data) => {
-    await fs.writeFile(DB_PATH, JSON.stringify(data, null, 2), 'utf-8');
-    // Invalidate the cache
+    await kv.set(DB_KEY, data);
+    // Invalidate the cache to ensure the next getData call fetches the fresh data
     dbCache = null;
 };
