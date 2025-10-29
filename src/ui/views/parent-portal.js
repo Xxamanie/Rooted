@@ -24,10 +24,10 @@ export const renderParentPortal = () => {
         el('div', { className: 'header-right' }, [
             el('span', { className: 'header-welcome-text' }, [`Welcome, ${currentParent.name}`]),
             el('div', { className: 'user-avatar' }, [currentParent.name.charAt(0).toUpperCase()]),
-            el('button', { className: 'btn btn-icon-only', title: 'Logout' }, ['🚪'])
+            el('button', { className: 'btn logout-btn', title: 'Logout' }, ['Logout'])
         ])
     ]);
-    parentHeader.querySelector('button').addEventListener('click', handleLogout);
+    parentHeader.querySelector('button[title="Logout"]').addEventListener('click', handleLogout);
 
     const childCards = currentParent.studentIds.map(studentId => {
         const student = students.find(s => s.id === studentId);

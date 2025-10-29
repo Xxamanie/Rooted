@@ -135,20 +135,6 @@ export const renderTeacherShell = () => {
     });
 
     const handleLogout = () => api.logout();
-
-    const handleLiveModeToggle = (e) => {
-        const isLive = e.target.checked;
-        localStorage.setItem('smartschool_liveMode', String(isLive));
-        setState({ isLiveMode: isLive });
-        headerStatus.textContent = isLive ? '(Live)' : '(Local)';
-        headerStatus.className = `header-status ${isLive ? 'header-status-live' : 'header-status-local'}`;
-        showToast(`Network simulation is now ${isLive ? 'ON (800ms delay)' : 'OFF'}.`, 'info');
-    };
-
-    const headerStatus = el('span', {
-        id: 'header-status',
-        className: `header-status ${state.isLiveMode ? 'header-status-live' : 'header-status-local'}`
-    }, [state.isLiveMode ? '(Live)' : '(Local)']);
     
     const headerRightChildren = [];
 
@@ -227,16 +213,9 @@ export const renderTeacherShell = () => {
     
     // Add the rest of the header items
     headerRightChildren.push(
-        el('div', { className: 'settings-item live-toggle' }, [
-            headerStatus,
-            el('label', { htmlFor: 'live-mode-toggle', className: 'switch-container' }, [
-                el('input', { type: 'checkbox', id: 'live-mode-toggle', checked: state.isLiveMode }),
-                el('span', { className: 'switch' })
-            ])
-        ]),
         el('span', { className: 'header-welcome-text' }, [`Welcome, ${state.currentUser.name.split(' ')[0]}`]),
         el('div', { className: 'user-avatar' }, [state.currentUser.name.charAt(0).toUpperCase()]),
-        el('button', { id: 'logout-btn', className: 'btn btn-icon-only', title: 'Logout' }, ['🚪'])
+        el('button', { id: 'logout-btn', className: 'btn logout-btn', title: 'Logout' }, ['Logout'])
     );
 
 
@@ -246,7 +225,6 @@ export const renderTeacherShell = () => {
     ]);
 
     header.querySelector('#logout-btn').addEventListener('click', handleLogout);
-    header.querySelector('#live-mode-toggle').addEventListener('change', handleLiveModeToggle);
 
     const mainContent = el('div', { className: 'main-content' }, [
         header,

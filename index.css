@@ -1,4 +1,5 @@
 
+
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
 * {
@@ -107,7 +108,7 @@ body {
 }
 
 .login-form {
-    padding: 25px 30px 35px;
+    padding: 25px 30px 30px;
     display: none;
 }
 .login-form.active {
@@ -213,10 +214,10 @@ body {
 }
 .header {
     background: var(--background-card);
-    padding: 12px 25px;
+    padding: 10px 20px;
     border-radius: 12px;
     box-shadow: var(--shadow-sm);
-    margin-bottom: 25px;
+    margin-bottom: 20px;
     display: flex;
     align-items: center;
     gap: 15px;
@@ -249,7 +250,7 @@ body {
 /* --- Cards --- */
 .management-card, .assessment-card, .analytics-card {
     background: var(--background-card);
-    padding: 25px;
+    padding: 20px;
     border-radius: 12px;
     box-shadow: var(--shadow-sm);
     border: 1px solid var(--border-color);
@@ -262,16 +263,16 @@ body {
 }
 .management-card h3, .management-card h4 {
     color: var(--text-primary);
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     font-size: 1.2em;
     font-weight: 600;
-    padding-bottom: 12px;
+    padding-bottom: 10px;
     border-bottom: 1px solid var(--border-color);
 }
 
 /* --- Forms & Inputs (Compact) --- */
 .form-group {
-    margin-bottom: 15px;
+    margin-bottom: 12px;
 }
 .form-group label {
     display: block;
@@ -282,7 +283,7 @@ body {
 }
 .form-group input, .form-group select, .form-group textarea {
     width: 100%;
-    padding: 8px 12px;
+    padding: 6px 10px;
     border: 1px solid var(--border-color);
     border-radius: 8px;
     font-size: 0.9rem;
@@ -291,7 +292,7 @@ body {
     color: var(--text-primary);
 }
 .form-group textarea {
-    height: 90px;
+    height: 80px;
     resize: vertical;
 }
 .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
@@ -303,8 +304,8 @@ body {
 .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin-bottom: 15px;
+    gap: 12px;
+    margin-bottom: 12px;
 }
 
 /* --- Buttons (with glow) --- */
@@ -356,6 +357,20 @@ body {
 .btn-info:hover {
     background-color: #0288d1;
     box-shadow: 0 4px 12px rgba(3, 155, 229, 0.3);
+}
+
+.logout-btn {
+    padding: 8px 16px;
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+}
+.logout-btn:hover {
+    background: var(--background-main);
+    color: var(--text-primary);
+    border-color: var(--text-secondary);
+    box-shadow: var(--shadow-sm);
+    transform: none;
 }
 
 /* --- Creator Mode --- */
@@ -577,7 +592,7 @@ body {
 .admin-grid-large, .scheme-grid, .classroom-grid, .dashboard-grid {
     display: grid;
     grid-template-columns: 1fr; /* Default to single column */
-    gap: 25px;
+    gap: 20px;
 }
 /* Use 2 columns on larger screens where it makes sense */
 @media (min-width: 992px) {
@@ -592,8 +607,8 @@ body {
 
 /* Keep remaining specific styles */
 .user-avatar {
-    width: 40px;
-    height: 40px;
+    width: 48px;
+    height: 48px;
     background: var(--text-primary);
     border-radius: 50%;
     display: flex;
@@ -601,7 +616,7 @@ body {
     justify-content: center;
     color: white;
     font-weight: 600;
-    font-size: 1.2em;
+    font-size: 1.4em;
 }
 
 .spinner-overlay {
@@ -638,4 +653,69 @@ body {
 }
 #teacher-app.creator-mode .spinner {
     border-left-color: var(--creator-accent);
+}
+
+/* --- Creator View --- */
+.creator-view {
+    display: flex;
+    flex-direction: column;
+}
+
+.creator-nav {
+    display: flex;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 20px;
+}
+
+.creator-nav-btn {
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.creator-nav-btn:hover {
+    color: var(--text-primary);
+}
+
+.creator-nav-btn.active {
+    color: var(--primary-accent);
+    border-bottom-color: var(--primary-accent);
+    font-weight: 600;
+}
+
+.creator-panel {
+    display: none;
+    animation: fadeIn 0.5s;
+}
+
+.creator-panel.active {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 20px;
+}
+
+/* Specific panel layouts */
+#panel-messaging.active, #panel-system.active {
+    grid-template-columns: 1fr 1fr;
+}
+
+
+#teacher-app.creator-mode .creator-nav {
+    border-bottom-color: var(--creator-border);
+}
+#teacher-app.creator-mode .creator-nav-btn {
+    color: var(--creator-text);
+}
+#teacher-app.creator-mode .creator-nav-btn:hover {
+    color: var(--creator-accent);
+}
+#teacher-app.creator-mode .creator-nav-btn.active {
+    color: var(--creator-accent);
+    border-bottom-color: var(--creator-accent);
 }

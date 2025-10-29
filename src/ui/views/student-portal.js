@@ -352,7 +352,7 @@ export const renderStudentPortal = () => {
             renderNotificationBell(),
             el('span', { className: 'header-welcome-text' }, [`Welcome, ${currentStudent.name.split(' ')[0]}`]),
             el('div', { className: 'user-avatar' }, [currentStudent.name.charAt(0).toUpperCase()]),
-            el('button', { className: 'btn btn-icon-only', title: 'Logout' }, ['🚪'])
+            el('button', { className: 'btn logout-btn', title: 'Logout' }, ['Logout'])
         ])
     ]);
     studentHeader.querySelector('button[title="Logout"]').addEventListener('click', handleLogout);
