@@ -787,3 +787,40 @@ body {
     color: var(--creator-accent);
     border-bottom-color: var(--creator-accent);
 }
+
+/* --- AI Settings Modal --- */
+.settings-description {
+    font-size: 0.9em;
+    color: var(--text-secondary);
+    margin-top: 10px;
+    margin-bottom: 15px;
+    line-height: 1.5;
+}
+.radio-group {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+.radio-group label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    cursor: pointer;
+}
+.api-key-note {
+    background-color: var(--background-main);
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 0.85em;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+}
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}

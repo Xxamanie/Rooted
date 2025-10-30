@@ -21,6 +21,100 @@ import { renderCreatorView } from "./teacher/creator.js";
 import { renderResultsPanelView } from "./teacher/results-panel.js";
 
 
+const renderAiSettingsModal = () => {
+    const { aiProvider, openAiApiKey } = getState();
+
+    const closeModal = () => {
+        const modal = document.getElementById('ai-settings-modal');
+        if (modal) {
+            modal.classList.remove('visible');
+            setTimeout(() => modal.remove(), 300);
+        }
+    };
+
+    const handleSave = () => {
+        const selectedProvider = modal.querySelector('input[name="ai-provider"]:checked').value;
+        const newApiKey = modal.querySelector('#openai-api-key').value.trim();
+
+        if (selectedProvider === 'openai' && !newApiKey) {
+            showToast('Please enter an OpenAI API Key to use this provider.', 'error');
+            return;
+        }
+
+        localStorage.setItem('smartschool_aiProvider', selectedProvider);
+        localStorage.setItem('smartschool_openAiApiKey', newApiKey);
+        setState({
+            aiProvider: selectedProvider,
+            openAiApiKey: newApiKey,
+        });
+        showToast('AI settings saved successfully!', 'success');
+        closeModal();
+    };
+
+    const apiKeyInput = el('input', { 
+        type: 'password', 
+        id: 'openai-api-key',
+        className: 'form-group',
+        placeholder: 'sk-xxxxxxxxxxxxxxxxxxxxxxxx',
+        value: openAiApiKey || ''
+    });
+
+    const apiKeyGroup = el('div', { className: 'form-group' }, [
+        el('label', { htmlFor: 'openai-api-key' }, ['OpenAI API Key']),
+        apiKeyInput,
+        el('p', { className: 'settings-description', style: {marginTop: '5px'} }, ['Your key is stored securely in your browser and is never sent to our servers.'])
+    ]);
+
+    // Show/hide OpenAI key input based on selection
+    const toggleApiKeyInput = (provider) => {
+        apiKeyGroup.style.display = provider === 'openai' ? 'block' : 'none';
+    };
+
+    const modalContent = el('div', { className: 'modal-content' }, [
+        el('h3', {}, ['AI Settings']),
+        el('p', { className: 'settings-description' }, ['Choose the AI provider for all generative features in the platform.']),
+        el('div', { className: 'form-group' }, [
+            el('label', {}, ['AI Provider']),
+            el('div', { className: 'radio-group' }, [
+                el('label', {}, [
+                    el('input', { type: 'radio', name: 'ai-provider', value: 'gemini', checked: aiProvider === 'gemini' }),
+                    'Google Gemini (Default)'
+                ]),
+                el('label', {}, [
+                    el('input', { type: 'radio', name: 'ai-provider', value: 'openai', checked: aiProvider === 'openai' }),
+                    'OpenAI (ChatGPT)'
+                ])
+            ])
+        ]),
+        el('div', { className: 'api-key-note' }, [
+            el('strong', {}, ['Note: ']),
+            'The Gemini API is provided by the platform. To use OpenAI, you must provide your own API key.'
+        ]),
+        apiKeyGroup,
+        el('div', { className: 'modal-footer' }, [
+            el('button', { className: 'btn btn-secondary' }, ['Cancel']),
+            el('button', { className: 'btn' }, ['Save Settings'])
+        ])
+    ]);
+
+    const modal = el('div', { id: 'ai-settings-modal', className: 'modal-overlay' }, [modalContent]);
+    
+    modal.addEventListener('click', (e) => {
+        if (e.target.matches('input[name="ai-provider"]')) {
+            toggleApiKeyInput(e.target.value);
+        }
+    });
+
+    modal.querySelector('.btn-secondary').addEventListener('click', closeModal);
+    modal.querySelector('.btn').addEventListener('click', handleSave);
+
+    // Set initial visibility
+    toggleApiKeyInput(aiProvider);
+
+    document.body.appendChild(modal);
+    setTimeout(() => modal.classList.add('visible'), 10);
+};
+
 const createSidebar = () => {
     const state = getState();
     const isCreator = state.currentUser?.role === 'Creator';
@@ -136,6 +230,14 @@ export const renderTeacherShell = () => {
 
     const handleLogout = () => api.logout();
     
+    const settingsBtn = el('button', { 
+        id: 'settings-btn', 
+        className: 'btn logout-btn', 
+        title: 'AI Settings', 
+        style: { padding: '8px 12px' } 
+    }, ['⚙️']);
+    settingsBtn.addEventListener('click', renderAiSettingsModal);
+
     const headerRightChildren = [];
 
     // --- Search Bar (for admins/creators) ---
@@ -213,6 +315,7 @@ export const renderTeacherShell = () => {
     
     // Add the rest of the header items
     headerRightChildren.push(
+        settingsBtn,
         el('span', { className: 'header-welcome-text' }, [`Welcome, ${state.currentUser.name.split(' ')[0]}`]),
         el('div', { className: 'user-avatar' }, [state.currentUser.name.charAt(0).toUpperCase()]),
         el('button', { id: 'logout-btn', className: 'btn logout-btn', title: 'Logout' }, ['Logout'])

@@ -33,6 +33,9 @@ let state = {
     isLiveMode: false,
     broadcastMessage: null,
     adminMessage: null,
+    // AI Provider Settings
+    aiProvider: 'gemini', // 'gemini' or 'openai'
+    openAiApiKey: null,
 };
 
 export const getState = () => {

@@ -46,11 +46,15 @@ const renderApp = () => {
 const init = async () => {
     const loadedState = await api.loadInitialState();
     const isLiveMode = localStorage.getItem('smartschool_liveMode') === 'true';
+    const aiProvider = localStorage.getItem('smartschool_aiProvider') || 'gemini';
+    const openAiApiKey = localStorage.getItem('smartschool_openAiApiKey') || null;
 
     // Combine all initial state setup into a single call for efficiency.
     setState({
         ...loadedState,
         isLiveMode,
+        aiProvider,
+        openAiApiKey,
     });
     
     document.addEventListener('state-change', (e) => {
