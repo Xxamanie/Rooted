@@ -315,7 +315,7 @@ const renderStudentDashboard = (mainContentContainer) => {
              el('div', { className: 'scrollable-list' }, essayElements)
         ]),
         el('div', { className: 'student-card' }, [
-             el('h4', {}, [el('span', { className: 'nav-icon' }, ['🎓']), ' My Report Card']),
+             el('h4', {}, [el('span', { className: 'nav-icon' }, ['🎓']), ' My Results']),
              reportCardContainer
          ]),
          el('div', { className: 'student-card' }, [

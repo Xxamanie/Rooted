@@ -110,7 +110,7 @@ export const renderDashboardView = () => {
                     el('li', {}, [el('strong', {}, ['Enter Key: ']), 'Paste your Gemini API key in the modal.']),
                     el('li', {}, [el('strong', {}, ['Save: ']), "You're all set!"])
                 ]),
-                el('p', {}, ['Now you can head to the Assessment Center, Report Cards, Timetable Generator, or Progress Tracker to leverage the power of AI.'])
+                el('p', {}, ['Now you can head to the Assessment Center, Results, Timetable Generator, or Progress Tracker to leverage the power of AI.'])
             ])
         ])
     ]);

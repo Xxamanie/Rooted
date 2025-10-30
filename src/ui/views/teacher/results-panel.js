@@ -10,9 +10,9 @@ import { renderResultsView } from "./results.js";
 
 export const renderResultsPanelView = () => {
     const panels = {
-        results: { button: null, name: 'Results' },
-        progress: { button: null, name: 'Student Progress Tracker' },
-        access: { button: null, name: 'Results Access' },
+        reports: { button: null, name: 'View Results' },
+        progress: { button: null, name: 'Progress Tracker' },
+        access: { button: null, name: 'Access Codes' },
     };
 
     const contentContainer = el('div', {});
@@ -25,7 +25,7 @@ export const renderResultsPanelView = () => {
                 if (button) button.classList.add('active');
                 
                 let newContent;
-                if (panelKey === 'results') newContent = renderReportsView();
+                if (panelKey === 'reports') newContent = renderReportsView();
                 else if (panelKey === 'progress') newContent = renderProgressView();
                 else if (panelKey === 'access') newContent = renderResultsView();
 
@@ -54,7 +54,7 @@ export const renderResultsPanelView = () => {
     ]);
 
     // Set default active panel
-    setActivePanel('results');
+    setActivePanel('reports');
 
     return view;
 };

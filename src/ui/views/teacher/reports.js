@@ -226,7 +226,7 @@ export const renderReportsView = () => {
 
     const view = el('div', { className: 'tab-content' }, [
         el('div', { className: 'management-card' }, [
-            el('h3', {}, ['Student Report Cards']),
+            el('h3', {}, ['Student Results']),
             el('div', { className: 'form-row' }, [
                 el('div', { className: 'form-group' }, [
                     el('label', {}, ['Select Student']),

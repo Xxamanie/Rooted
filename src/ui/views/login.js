@@ -7,6 +7,41 @@ import { el } from "../dom-utils.js";
 import { api } from "../../api.js";
 import { showToast } from "../dom-utils.js";
 
+const createCinematicDisplay = () => {
+    const capabilities = [
+        "AI-Powered Lesson Planning",
+        "Automated Quiz Generation",
+        "Intelligent Student Analytics",
+        "Seamless Parent & Student Portals",
+        "Proctored Online Examinations",
+        "Personalized AI Study Buddy"
+    ];
+    let currentIndex = 0;
+
+    const cinematicText = el('h1', { className: 'cinematic-text' }, [capabilities[currentIndex]]);
+
+    // Set an interval to cycle through the capabilities
+    setInterval(() => {
+        currentIndex = (currentIndex + 1) % capabilities.length;
+        
+        cinematicText.classList.remove('cinematic-text-animate');
+        
+        setTimeout(() => {
+            cinematicText.textContent = capabilities[currentIndex];
+            cinematicText.classList.add('cinematic-text-animate');
+        }, 50);
+
+    }, 4000);
+
+    // Trigger the initial animation
+    setTimeout(() => cinematicText.classList.add('cinematic-text-animate'), 100);
+
+    return el('div', { className: 'cinematic-container' }, [
+        el('div', { className: 'cinematic-text-wrapper' }, [cinematicText]),
+        el('p', { className: 'cinematic-footer' }, ['contact us to join our community of smart virtual school data documentation and AI assisted analysis'])
+    ]);
+};
+
 export const renderLoginView = () => {
     const handleTeacherLogin = async (e) => {
         e.preventDefault();
@@ -145,12 +180,19 @@ export const renderLoginView = () => {
         }
     });
 
+    const loginContainer = el('div', { className: 'login-container' }, [
+        loginTabs,
+        teacherForm,
+        studentForm,
+        parentForm
+    ]);
+
+    const cinematicDisplay = createCinematicDisplay();
+
     return el('div', { id: 'login-page' }, [
-        el('div', { className: 'login-container' }, [
-            loginTabs,
-            teacherForm,
-            studentForm,
-            parentForm
+        cinematicDisplay,
+        el('div', { className: 'login-form-area' }, [
+             loginContainer
         ])
     ]);
 };
