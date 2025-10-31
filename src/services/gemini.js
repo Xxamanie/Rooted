@@ -9,7 +9,15 @@ import { showToast } from "../ui/dom-utils.js";
 
 // As per guidelines, the API key is sourced from environment variables.
 // The UI for setting the key has been removed for security and simplicity.
-const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
+// Use Vite environment variable instead of process.env
+const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+
+if (!apiKey) {
+  console.error("❌ Gemini API key not found! Make sure VITE_GEMINI_API_KEY is set.");
+}
+
+const ai = new GoogleGenAI({ apiKey: apiKey });
+
 
 export const geminiService = {
     async generateQuiz(topic, numQuestions) {
