@@ -9,7 +9,7 @@ import { showToast } from "../ui/dom-utils.js";
 
 // As per guidelines, the API key is sourced from environment variables.
 // The UI for setting the key has been removed for security and simplicity.
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
 
 export const geminiService = {
     async generateQuiz(topic, numQuestions) {
