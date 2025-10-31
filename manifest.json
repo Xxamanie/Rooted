@@ -3,12 +3,12 @@
   "name": "Smart School - Comprehensive Education Platform",
   "icons": [
     {
-      "src": "assets/icon-192x192.png",
+      "src": "/assets/icon-192x192.png",
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "assets/icon-512x512.png",
+      "src": "/assets/icon-512x512.png",
       "type": "image/png",
       "sizes": "512x512"
     }
