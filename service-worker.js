@@ -1,7 +1,7 @@
 
 
 
-const CACHE_NAME = 'smartschool-v5'; // Bumped version to ensure new SW is installed
+const CACHE_NAME = 'smartschool-v6'; // Bumped version to ensure new SW is installed
 const urlsToCache = [
   '/',
   '/index.html',
@@ -17,7 +17,7 @@ const urlsToCache = [
   '/src/services/gemini.js',
   '/src/services/openai.js',
   '/src/state.js',
-  '/src/utils.js',
+  '/src/ui/utils.js',
   '/src/ui/dom-utils.js',
   '/src/ui/views/login.js',
   '/src/ui/views/parent-portal.js',

@@ -1,16 +1,25 @@
-import { getData, setData } from './_lib/db.js';
+import { Router } from 'express';
+import { getData, setData } from '../lib/db.js';
 
-export default async function handler(req, res) {
-    if (req.method !== 'POST') {
-        return res.status(405).json({ message: 'Method Not Allowed' });
+const router = Router();
+
+// From: api/bootstrap.js
+router.get('/bootstrap', async (req, res) => {
+    try {
+        const data = await getData();
+        res.status(200).json(data);
+    } catch (error) {
+        console.error('Error bootstrapping data:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
     }
+});
 
+// From: api/auth.js
+router.post('/auth', async (req, res) => {
     const db = await getData();
     const { type, schoolCode, staffId, studentId, accessCode, parentId } = req.body;
     
-    // Creator Login Check
     const CREATOR_SCHOOL_CODE = 'xxamanie';
-    // Use an environment variable for the creator password for security
     const CREATOR_PASSWORD = process.env.CREATOR_PASSWORD; 
 
     if (schoolCode === CREATOR_SCHOOL_CODE && staffId === CREATOR_PASSWORD) {
@@ -46,4 +55,6 @@ export default async function handler(req, res) {
     }
 
     return res.status(401).json({ message: 'Invalid credentials' });
-}
+});
+
+export default router;

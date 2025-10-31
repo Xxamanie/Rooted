@@ -55,7 +55,7 @@ export const getSeedData = () => ({
 });
 
 // Use an in-memory cache to reduce KV reads within a single function invocation.
-// This is safe because serverless function instances are short-lived.
+// This is safe because serverless function instances are short-lived, but also works for a single server instance.
 let dbCache = null;
 
 export const getData = async () => {
