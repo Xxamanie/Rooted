@@ -5,6 +5,7 @@
 
 import { getState, setState } from './state.js';
 import { showToast } from './ui/dom-utils.js';
+import { API_BASE_URL } from './ui/utils.js';
 
 // =================================================================
 // --- API SERVICE (Live Backend)
@@ -18,14 +19,14 @@ const handleResponse = async (response) => {
     return response.json();
 };
 
-const get = (endpoint) => fetch(endpoint).then(handleResponse);
-const post = (endpoint, body) => fetch(endpoint, {
+const get = (endpoint) => fetch(`${API_BASE_URL}${endpoint}`).then(handleResponse);
+const post = (endpoint, body) => fetch(`${API_BASE_URL}${endpoint}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
 }).then(handleResponse);
-const del = (endpoint) => fetch(endpoint, { method: 'DELETE' }).then(handleResponse);
-const put = (endpoint, body) => fetch(endpoint, {
+const del = (endpoint) => fetch(`${API_BASE_URL}${endpoint}`, { method: 'DELETE' }).then(handleResponse);
+const put = (endpoint, body) => fetch(`${API_BASE_URL}${endpoint}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
