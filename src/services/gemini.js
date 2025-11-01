@@ -7,13 +7,28 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { getState, setState } from '../state.js';
 import { showToast } from "../ui/dom-utils.js";
 
-// Initialize the Google AI client with the API key from environment variables,
-// as per security and integration best practices.
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Initialize the Google AI client. If the API key is missing,
+// Gemini features will be gracefully disabled.
+let ai;
+try {
+  ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+} catch (e) {
+  console.error("Gemini API key not found or invalid. Gemini features will be disabled.", e.message);
+  ai = null;
+}
+
+const checkAi = () => {
+    if (!ai) {
+        showToast("Gemini AI is not available. Please check the API key configuration.", "error");
+        return false;
+    }
+    return true;
+};
 
 
 export const geminiService = {
     async generateQuiz(topic, numQuestions) {
+        if (!checkAi()) return null;
         try {
             const response = await ai.models.generateContent({
                 model: "gemini-2.5-flash",
@@ -50,6 +65,7 @@ export const geminiService = {
     },
 
     async generateLessonPlan(topic, grade, weeks) {
+        if (!checkAi()) return null;
         const prompt = `Generate a ${weeks}-week lesson plan for the topic "${topic}" for ${grade}. Include learning objectives, a week-by-week breakdown of topics, suggested class activities or projects, and assessment methods.`;
         try {
             const response = await ai.models.generateContent({
@@ -96,6 +112,7 @@ export const geminiService = {
     },
 
     async generateTimetable(classes, offLimits, teachersAndSubjects) {
+        if (!checkAi()) return null;
         const prompt = `
             You are an expert school scheduler. Create a 5-day (Monday-Friday) weekly timetable from 09:00 to 16:00, with 1-hour slots.
             
@@ -152,6 +169,7 @@ export const geminiService = {
     },
     
     async generateSimpleText(prompt) {
+        if (!checkAi()) return null;
         try {
             const response = await ai.models.generateContent({
                 model: "gemini-2.5-flash",
@@ -166,6 +184,7 @@ export const geminiService = {
     },
     
     async startChat() {
+        if (!checkAi()) return null;
         const state = getState();
         
         const chat = ai.chats.create({
@@ -185,6 +204,7 @@ export const geminiService = {
     },
 
     async generateExamQuestions(topic, questionCounts) {
+        if (!checkAi()) return null;
         const { mcq, short_answer, paragraph } = questionCounts;
         const prompt = `Generate an exam on the topic: "${topic}".
         It should contain:
@@ -229,6 +249,7 @@ export const geminiService = {
     },
 
     async gradeEssay(prompt, essay) {
+        if (!checkAi()) return null;
         const fullPrompt = `
             You are an AI teaching assistant. Grade the following student essay based on the provided prompt. 
             Provide constructive feedback covering clarity, relevance to the prompt, and grammar.
@@ -263,6 +284,7 @@ export const geminiService = {
     },
 
     async gradeExamAnswers(questionsAndAnswers) {
+        if (!checkAi()) return null;
         const prompt = `You are an AI teaching assistant. Grade the student's answers for the following questions.
         Compare the student's answer to the provided model answer.
         - For 'short_answer' type, assign a score of 1 for a correct/very similar answer, and 0 otherwise.
@@ -307,6 +329,7 @@ export const geminiService = {
     },
 
     async generateDifferentiatedMaterials(topic) {
+        if (!checkAi()) return null;
         try {
             const response = await ai.models.generateContent({
                 model: "gemini-2.5-flash",
@@ -342,6 +365,7 @@ export const geminiService = {
     },
 
     async generateProactiveMessage(studentName, subject, score, totalQuestions) {
+        if (!checkAi()) return null;
         const prompt = `A student named ${studentName} just completed an exam in ${subject} and scored ${score} out of ${totalQuestions}.
         Write a short, friendly, and encouraging message (2-3 sentences) for their AI Study Buddy to display when they next open it.
         The message should acknowledge their effort, gently offer help with the topic, and avoid sounding judgmental.
