@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export const API_BASE_URL = "https://smartschool.onrender.com";
+export const API_BASE_URL = "https://smartschool-online.onrender.com";
 
 /**
  * Gets the ISO week string for a given date.
