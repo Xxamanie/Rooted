@@ -854,3 +854,18 @@ body {
 .error-container .btn {
     min-width: 120px;
 }
+
+.error-container .error-details {
+    background-color: #ffebee;
+    color: #c62828;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    font-family: 'Courier New', Courier, monospace;
+    white-space: pre-wrap;
+    word-break: break-all;
+    text-align: left;
+    max-width: 600px;
+    width: 100%;
+    font-size: 0.85em;
+}

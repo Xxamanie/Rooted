@@ -44,7 +44,7 @@ const renderApp = () => {
     }
 }
 
-const renderErrorView = (message, retryHandler) => {
+const renderErrorView = (message, retryHandler, error = null) => {
     if (!appContainer) return;
     const retryBtn = el('button', { className: 'btn' }, ['Retry']);
     retryBtn.addEventListener('click', retryHandler);
@@ -52,6 +52,7 @@ const renderErrorView = (message, retryHandler) => {
     const errorView = el('div', { className: 'error-container' }, [
         el('h2', {}, ['Oops! Something went wrong']),
         el('p', {}, [message]),
+        error ? el('pre', { className: 'error-details' }, [`Technical Details: ${error.toString()}`]) : null,
         retryBtn
     ]);
     
@@ -86,7 +87,7 @@ const init = async () => {
     } catch(error) {
         console.error('Initialization failed:', error);
         const friendlyMessage = "We couldn't connect to the server. This may be a temporary issue. Please check your internet connection and try again.";
-        renderErrorView(friendlyMessage, init);
+        renderErrorView(friendlyMessage, init, error);
     }
 };
 
