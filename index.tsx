@@ -44,28 +44,37 @@ const renderApp = () => {
     }
 }
 
-const renderErrorView = (message, retryHandler, error = null) => {
+const renderErrorView = (retryHandler, error = null) => {
     if (!appContainer) return;
-    const retryBtn = el('button', { className: 'btn' }, ['Retry']);
+    const retryBtn = el('button', { className: 'btn' }, ['Retry Connection']);
     retryBtn.addEventListener('click', retryHandler);
 
     let errorDetails = null;
     if (error) {
         // If the error message is a full HTML page, it's not useful to display.
-        // Let's show a cleaner message in that case.
+        // We only show the error message itself, not the client-side stack trace
+        // which can be misleading for a server-side issue.
         const errorMessage = (error.message && error.message.trim().toLowerCase().startsWith('<!doctype html'))
-            ? 'The server returned an HTML error page. Please check the server logs for the specific error details.'
-            : (error.stack || error.message || 'No technical details available.');
+            ? 'The server returned a generic HTML error page instead of a specific error message.'
+            : (error.message || 'No technical details available.');
             
         errorDetails = el('pre', { className: 'error-details' }, [
-            el('strong', {}, ['Technical Details:']),
+            el('strong', {}, ['Error Reported by Browser:']),
             `\n${errorMessage}`
         ]);
     }
 
     const errorView = el('div', { className: 'error-container' }, [
-        el('h2', {}, ['Oops! Something went wrong']),
-        el('p', {}, [message]),
+        el('h2', {}, ['Backend Server Error']),
+        el('p', {}, [
+            "The application can't load data because the backend server at ",
+            el('code', {}, ['smartschool-online.onrender.com']),
+            " is encountering a critical issue (likely a 500 Internal Server Error)."
+        ]),
+        el('div', { className: 'error-suggestion' }, [
+            el('strong', {}, ['What to do next:']),
+            "The server process has likely crashed. To fix this, you need to check the server logs on your hosting platform (e.g., Render.com) to see the specific error that caused the failure."
+        ]),
         errorDetails,
         retryBtn
     ]);
@@ -100,8 +109,7 @@ const init = async () => {
         renderApp();
     } catch(error) {
         console.error('Initialization failed:', error);
-        const friendlyMessage = "We couldn't load the application data from the server. This could be a temporary issue or a problem with the backend service.";
-        renderErrorView(friendlyMessage, init, error);
+        renderErrorView(init, error);
     }
 };
 
