@@ -8,8 +8,6 @@ const urlsToCache = [
   '/index.css',
   '/manifest.json',
   '/metadata.json',
-  '/assets/icon-192x192.png',
-  '/assets/icon-512x512.png',
   '/index.tsx',
   '/src/api.js',
   '/src/router.js',
