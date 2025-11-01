@@ -49,10 +49,24 @@ const renderErrorView = (message, retryHandler, error = null) => {
     const retryBtn = el('button', { className: 'btn' }, ['Retry']);
     retryBtn.addEventListener('click', retryHandler);
 
+    let errorDetails = null;
+    if (error) {
+        // If the error message is a full HTML page, it's not useful to display.
+        // Let's show a cleaner message in that case.
+        const errorMessage = (error.message && error.message.trim().toLowerCase().startsWith('<!doctype html'))
+            ? 'The server returned an HTML error page. Please check the server logs for the specific error details.'
+            : (error.stack || error.message || 'No technical details available.');
+            
+        errorDetails = el('pre', { className: 'error-details' }, [
+            el('strong', {}, ['Technical Details:']),
+            `\n${errorMessage}`
+        ]);
+    }
+
     const errorView = el('div', { className: 'error-container' }, [
         el('h2', {}, ['Oops! Something went wrong']),
         el('p', {}, [message]),
-        error ? el('pre', { className: 'error-details' }, [`Technical Details: ${error.toString()}`]) : null,
+        errorDetails,
         retryBtn
     ]);
     
@@ -86,7 +100,7 @@ const init = async () => {
         renderApp();
     } catch(error) {
         console.error('Initialization failed:', error);
-        const friendlyMessage = "We couldn't connect to the server. This may be a temporary issue. Please check your internet connection and try again.";
+        const friendlyMessage = "We couldn't load the application data from the server. This could be a temporary issue or a problem with the backend service.";
         renderErrorView(friendlyMessage, init, error);
     }
 };

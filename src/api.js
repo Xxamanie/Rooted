@@ -1,3 +1,4 @@
+
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
@@ -13,8 +14,28 @@ import { API_BASE_URL } from './ui/utils.js';
 
 const handleResponse = async (response) => {
     if (!response.ok) {
-        const error = await response.json().catch(() => ({ message: response.statusText }));
-        throw new Error(error.message || 'An unknown error occurred.');
+        // Try to get a meaningful error message from the body
+        let errorMessage;
+        const contentType = response.headers.get('content-type');
+        
+        if (contentType && contentType.includes('application/json')) {
+            try {
+                const errorJson = await response.json();
+                errorMessage = errorJson.message || JSON.stringify(errorJson);
+            } catch (e) {
+                errorMessage = 'Server returned invalid JSON.';
+            }
+        } else {
+            // If not JSON, try to read as text. This might contain a server stack trace.
+            errorMessage = await response.text();
+        }
+
+        // If after all that we have no message, fall back to statusText
+        if (!errorMessage) {
+            errorMessage = `${response.status}: ${response.statusText}`;
+        }
+        
+        throw new Error(errorMessage);
     }
     return response.json();
 };
