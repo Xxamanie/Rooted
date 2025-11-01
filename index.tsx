@@ -1,3 +1,4 @@
+
 import { api } from './src/api.js';
 import { getState, setState } from './src/state.js';
 import { renderLoginView } from './src/ui/views/login.js';
@@ -43,40 +44,50 @@ const renderApp = () => {
     }
 }
 
-const init = async () => {
-    const loadedState = await api.loadInitialState();
-    const isLiveMode = localStorage.getItem('smartschool_liveMode') === 'true';
-    const aiProvider = localStorage.getItem('smartschool_aiProvider') || 'gemini';
-    const openAiApiKey = localStorage.getItem('smartschool_openAiApiKey') || null;
+const renderErrorView = (message, retryHandler) => {
+    if (!appContainer) return;
+    const retryBtn = el('button', { className: 'btn' }, ['Retry']);
+    retryBtn.addEventListener('click', retryHandler);
 
-    // Combine all initial state setup into a single call for efficiency.
-    setState({
-        ...loadedState,
-        isLiveMode,
-        aiProvider,
-        openAiApiKey,
-    });
+    const errorView = el('div', { className: 'error-container' }, [
+        el('h2', {}, ['Oops! Something went wrong']),
+        el('p', {}, [message]),
+        retryBtn
+    ]);
     
-    document.addEventListener('state-change', (e) => {
-        const detail = (e as CustomEvent).detail;
-        // Use optional chaining for robustness in case detail is undefined.
-        if (detail?.rerender) {
-            renderApp();
-        }
-    });
-
-    renderApp();
+    appContainer.innerHTML = '';
+    appContainer.appendChild(errorView);
 };
 
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/service-worker.js').then(registration => {
-            console.log('SW registered: ', registration);
-        }).catch(registrationError => {
-            console.log('SW registration failed: ', registrationError);
-        });
-    });
-}
+const init = async () => {
+    try {
+        const loadedState = await api.loadInitialState();
+        const isLiveMode = localStorage.getItem('smartschool_liveMode') === 'true';
+        const aiProvider = localStorage.getItem('smartschool_aiProvider') || 'gemini';
+        const openAiApiKey = localStorage.getItem('smartschool_openAiApiKey') || null;
 
+        // Combine all initial state setup into a single call for efficiency.
+        setState({
+            ...loadedState,
+            isLiveMode,
+            aiProvider,
+            openAiApiKey,
+        });
+        
+        document.addEventListener('state-change', (e) => {
+            const detail = (e as CustomEvent).detail;
+            // Use optional chaining for robustness in case detail is undefined.
+            if (detail?.rerender) {
+                renderApp();
+            }
+        });
+
+        renderApp();
+    } catch(error) {
+        console.error('Initialization failed:', error);
+        const friendlyMessage = "We couldn't connect to the server. This may be a temporary issue. Please check your internet connection and try again.";
+        renderErrorView(friendlyMessage, init);
+    }
+};
 
 document.addEventListener('DOMContentLoaded', init);
