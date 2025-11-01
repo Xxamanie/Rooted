@@ -7,16 +7,9 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { getState, setState } from '../state.js';
 import { showToast } from "../ui/dom-utils.js";
 
-// As per guidelines, the API key is sourced from environment variables.
-// The UI for setting the key has been removed for security and simplicity.
-// Use Vite environment variable instead of process.env
-const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-
-if (!apiKey) {
-  console.error("❌ Gemini API key not found! Make sure VITE_GEMINI_API_KEY is set.");
-}
-
-const ai = new GoogleGenAI({ apiKey: apiKey });
+// Initialize the Google AI client with the API key from environment variables,
+// as per security and integration best practices.
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 
 export const geminiService = {
