@@ -555,6 +555,10 @@ body {
     background-color: #ffebee;
     color: #d32f2f;
 }
+.status-partially-paid {
+    background-color: #fff8e1;
+    color: #f57c00;
+}
 .status-1st-term-paid {
     background-color: #e3f2fd;
     color: #1976d2;
@@ -903,3 +907,222 @@ body {
 .error-container .error-details strong {
     color: #c62828;
 }
+
+/* --- Messaging View --- */
+.messaging-view {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    height: calc(100vh - 125px); /* Adjust based on header/padding */
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    background: var(--background-card);
+    overflow: hidden;
+}
+.conversation-list {
+    border-right: 1px solid var(--border-color);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+.conversation-list h4 {
+    padding: 15px;
+    margin: 0;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 1.1rem;
+}
+.conversation-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.2s;
+}
+.conversation-item:hover {
+    background-color: var(--background-main);
+}
+.conversation-item.active {
+    background-color: var(--primary-accent);
+    color: white;
+}
+.conversation-item .user-avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2em;
+}
+.conversation-details {
+    flex: 1;
+    overflow: hidden;
+}
+.conversation-details strong {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.conversation-details .last-message {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.conversation-item.active .last-message {
+    color: #e0e0e0;
+}
+.unread-indicator {
+    width: 10px;
+    height: 10px;
+    background: var(--info-color);
+    border-radius: 50%;
+}
+.chat-panel {
+    display: flex;
+    flex-direction: column;
+}
+.chat-header {
+    padding: 15px;
+    border-bottom: 1px solid var(--border-color);
+    font-weight: 600;
+}
+.chat-messages {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.chat-message {
+    display: flex;
+    gap: 10px;
+    max-width: 75%;
+}
+.chat-message.user {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+}
+.chat-message .user-avatar {
+    width: 35px;
+    height: 35px;
+    font-size: 1.1em;
+}
+.message-bubble {
+    padding: 10px 15px;
+    border-radius: 18px;
+}
+.chat-message.model .message-bubble {
+    background: var(--background-main);
+    border-top-left-radius: 4px;
+}
+.chat-message.user .message-bubble {
+    background: var(--primary-accent);
+    color: white;
+    border-top-right-radius: 4px;
+}
+.chat-form {
+    display: flex;
+    padding: 15px;
+    border-top: 1px solid var(--border-color);
+    gap: 10px;
+}
+.chat-form textarea {
+    flex: 1;
+    resize: none;
+    height: 40px;
+    border-radius: 20px;
+    padding: 10px 15px;
+}
+.chat-form .btn {
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+}
+
+/* --- Resource Hub --- */
+.resource-hub-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+.resource-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--background-main);
+}
+.resource-icon { font-size: 1.5rem; }
+.resource-details { flex: 1; }
+.resource-details a { text-decoration: none; color: var(--primary-accent); font-weight: 500; }
+.resource-details p { font-size: 0.85rem; color: var(--text-secondary); margin: 0; }
+.resource-item .btn-danger { padding: 5px 10px; font-size: 0.8rem; }
+
+/* --- Calendar/Events --- */
+.event-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.event-item {
+    display: flex;
+    gap: 15px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-color);
+}
+.event-date {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary-accent);
+    color: white;
+    border-radius: 8px;
+    padding: 8px;
+    font-weight: 600;
+    text-align: center;
+    min-width: 55px;
+}
+.event-date .month {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+}
+.event-date .day {
+    font-size: 1.5rem;
+    line-height: 1;
+}
+.event-details {
+    flex: 1;
+}
+.event-details strong { display: block; }
+.event-details p { font-size: 0.9rem; color: var(--text-secondary); margin: 0; }
+
+/* --- Enhanced Tuition --- */
+.tuition-details {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 15px;
+    font-size: 0.9rem;
+}
+.tuition-details span {
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+.tuition-details strong {
+    color: var(--text-primary);
+}
+.payment-history-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+.payment-history-table th, .payment-history-table td {
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    text-align: left;
+}
+.payment-history-table th { background: var(--background-main); }

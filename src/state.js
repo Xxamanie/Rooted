@@ -25,6 +25,11 @@ let state = {
     questionBank: [],
     timetable: null,
     tasks: [],
+    // New Features State
+    messages: [], 
+    resources: [],
+    events: [],
+    paymentHistory: [],
     currentUser: null,
     currentStudent: null,
     currentParent: null,

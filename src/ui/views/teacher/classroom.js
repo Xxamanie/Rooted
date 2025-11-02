@@ -251,15 +251,43 @@ export const renderStudentViewEssayModal = (assignmentId) => {
 
 export const renderClassroomView = () => {
     // --- State and variables ---
-    const { essayAssignments, essaySubmissions, students } = getState();
+    const { essayAssignments, essaySubmissions, students, resources, currentUser } = getState();
     const attendanceClassSelect = el('select');
     const attendanceListContainer = el('div', {}, [el('p', {}, ['Select a class to see student list.'])]);
     const announcementListContainer = el('div', { className: 'scrollable-list' });
     const essayClassSelect = el('select');
     const essayAssignmentSelect = el('select');
     const essaySubmissionsContainer = el('div', { className: 'scrollable-list' }, [el('p', { className: 'placeholder-text' }, ['Select an assignment to view submissions.'])]);
+    const resourceListContainer = el('div', { className: 'scrollable-list' });
 
     // --- Render Functions ---
+    const renderResourceList = () => {
+        if (resources.length === 0) {
+            renderChildren(resourceListContainer, [el('p', { className: 'placeholder-text' }, ['No resources uploaded yet.'])]);
+            return;
+        }
+
+        const resourceElements = resources.map(res => {
+            const icon = res.type === 'link' ? '🔗' : '📄';
+            const removeBtn = el('button', {className: 'btn btn-danger'}, ['Del']);
+            removeBtn.addEventListener('click', async () => {
+                await api.removeResource(res.id);
+                renderResourceList();
+                showToast('Resource removed.', 'success');
+            });
+
+            return el('div', { className: 'resource-item'}, [
+                el('span', {className: 'resource-icon'}, [icon]),
+                el('div', {className: 'resource-details'}, [
+                    el('a', {href: res.content, target: '_blank', title: res.fileName || res.content}, [res.title]),
+                    el('p', {}, [`${res.subject} | For: ${res.className}`])
+                ]),
+                removeBtn
+            ]);
+        });
+        renderChildren(resourceListContainer, resourceElements);
+    };
+
     const renderEssaySubmissions = (assignmentId) => {
         if (!assignmentId) {
             renderChildren(essaySubmissionsContainer, [el('p', { className: 'placeholder-text' }, ['Select an assignment to view submissions.'])]);
@@ -313,6 +341,54 @@ export const renderClassroomView = () => {
     };
 
     // --- Event Handlers ---
+    const handleAddResource = (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const fileInput = form.querySelector('#resource-file');
+        const linkInput = form.querySelector('#resource-link');
+        const file = fileInput.files[0];
+
+        const resourceData = {
+            teacherId: currentUser.id,
+            title: form.querySelector('#resource-title').value,
+            subject: form.querySelector('#resource-subject').value,
+            className: form.querySelector('#resource-class-select').value,
+        };
+
+        if (!resourceData.title || !resourceData.subject || !resourceData.className) {
+            showToast('Please fill out all fields.', 'error');
+            return;
+        }
+
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = async (event) => {
+                await api.addResource({
+                    ...resourceData,
+                    type: 'file',
+                    content: event.target.result,
+                    fileName: file.name
+                });
+                showToast('File resource uploaded!', 'success');
+                renderResourceList();
+                form.reset();
+            };
+            reader.readAsDataURL(file);
+        } else if (linkInput.value) {
+            api.addResource({
+                ...resourceData,
+                type: 'link',
+                content: linkInput.value
+            }).then(() => {
+                showToast('Link resource added!', 'success');
+                renderResourceList();
+                form.reset();
+            });
+        } else {
+            showToast('Please provide a file or a link.', 'error');
+        }
+    };
+
     const handlePostAnnouncement = async (e) => {
         e.preventDefault();
         const form = e.target;
@@ -373,6 +449,7 @@ export const renderClassroomView = () => {
     populateClassSelector(essayClassSelect);
     renderAnnouncements(announcementListContainer);
     renderEssayAssignmentSelector();
+    renderResourceList();
     
     attendanceClassSelect.addEventListener('change', (e) => {
         renderAttendanceList(e.target.value, attendanceListContainer);
@@ -409,12 +486,28 @@ export const renderClassroomView = () => {
     ]);
     createEssayForm.addEventListener('submit', handleCreateEssay);
 
+    const resourceClassSelect = el('select', {id: 'resource-class-select'});
+    populateClassSelector(resourceClassSelect);
+
+    const resourceForm = el('form', {id: 'resource-form'}, [
+        el('div', {className: 'form-group'}, [ el('input', {type: 'text', id: 'resource-title', placeholder: 'Resource Title', required: true}) ]),
+        el('div', {className: 'form-row'}, [
+            el('div', {className: 'form-group'}, [ el('input', {type: 'text', id: 'resource-subject', placeholder: 'Subject', required: true}) ]),
+            el('div', {className: 'form-group'}, [ resourceClassSelect ]),
+        ]),
+        el('div', {className: 'form-group'}, [ el('input', {type: 'file', id: 'resource-file'}) ]),
+        el('div', {className: 'form-group'}, [ el('input', {type: 'url', id: 'resource-link', placeholder: 'Or paste a link here'}) ]),
+        el('button', {type: 'submit', className: 'btn'}, ['Add Resource'])
+    ]);
+    resourceForm.addEventListener('submit', handleAddResource);
+
 
     const view = el('div', { className: 'tab-content' }, [
         el('div', { className: 'classroom-grid' }, [
             el('div', { className: 'management-card' }, [
                 el('h4', {}, ['Post Announcement']),
                 announcementForm,
+                el('hr'),
                 el('h4', { style: { marginTop: '20px' } }, ['Take Attendance']),
                 el('div', { className: 'form-group' }, [
                     el('label', { htmlFor: 'attendance-class-select' }, ['Select Class']),
@@ -424,8 +517,11 @@ export const renderClassroomView = () => {
                 saveAttendanceBtn
             ]),
             el('div', { className: 'management-card' }, [
-                el('h4', {}, ['Recent Announcements']),
-                announcementListContainer
+                el('h4', {}, ['Class Resources Hub']),
+                resourceForm,
+                el('hr'),
+                el('h5', {}, ['Uploaded Resources']),
+                resourceListContainer
             ])
         ]),
         el('div', { className: 'admin-grid-large', style: { marginTop: '25px' } }, [
@@ -443,7 +539,8 @@ export const renderClassroomView = () => {
                 createEssayForm
             ]),
             el('div', { className: 'management-card' }, [
-                // Assessment sheet can be its own view if it gets more complex
+                 el('h4', {}, ['Recent Announcements']),
+                announcementListContainer
             ])
         ])
     ]);
@@ -454,6 +551,7 @@ export const renderClassroomView = () => {
              renderAnnouncements(announcementListContainer);
              renderEssayAssignmentSelector();
              renderEssaySubmissions(essayAssignmentSelect.value);
+             renderResourceList();
         }
     });
 

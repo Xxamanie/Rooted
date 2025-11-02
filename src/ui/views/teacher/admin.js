@@ -168,6 +168,35 @@ const renderStaffActivity = () => {
     return el('tbody', {}, rows);
 }
 
+const renderEventList = (container) => {
+    const { events } = getState();
+    const schoolEvents = events.filter(e => e.type === 'school').sort((a,b) => new Date(a.date) - new Date(b.date));
+
+    if (schoolEvents.length === 0) {
+        renderChildren(container, [el('p', {}, ['No school-wide events scheduled.'])]);
+        return;
+    }
+    
+    const items = schoolEvents.map(event => {
+        const removeBtn = el('button', {className: 'btn btn-danger', style: 'padding: 5px 10px; font-size: 0.8rem;'}, ['Delete']);
+        removeBtn.addEventListener('click', async () => {
+            await api.removeEvent(event.id);
+            renderEventList(container);
+            showToast('Event removed.', 'success');
+        });
+        return el('div', {className: 'event-item'}, [
+            el('div', {className: 'event-details', style: 'flex: 3'}, [
+                el('strong', {}, [event.title]),
+                el('p', {}, [event.description])
+            ]),
+            el('strong', {style: 'flex: 1'}, [new Date(event.date).toLocaleDateString()]),
+            el('div', {style: 'flex: 1; text-align: right;'}, [removeBtn])
+        ]);
+    });
+
+    renderChildren(container, items);
+};
+
 
 export const renderAdminView = () => {
     const handleAddStaff = async (e) => {
@@ -226,6 +255,25 @@ export const renderAdminView = () => {
         }
     };
     
+    const eventListContainer = el('div', {className: 'scrollable-list', style: {marginTop: '15px'}});
+    const handleAddEvent = async (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const title = form.querySelector('#event-title').value;
+        const date = form.querySelector('#event-date').value;
+        const description = form.querySelector('#event-description').value;
+        
+        if (!title || !date || !description) {
+            showToast('Please fill all event fields.', 'error');
+            return;
+        }
+
+        await api.addEvent({ title, date, description, type: 'school' });
+        showToast('School event added.', 'success');
+        renderEventList(eventListContainer);
+        form.reset();
+    };
+
     // Forms
     const addStaffForm = el('form', { className: 'management-form form-row' }, [
         el('div', { className: 'form-group' }, [ el('input', { type: 'text', id: 'staff-name', placeholder: 'Staff Name', required: true }) ]),
@@ -247,6 +295,14 @@ export const renderAdminView = () => {
         el('button', { type: 'submit', className: 'btn' }, ['Add Parent'])
     ]);
     addParentForm.addEventListener('submit', handleAddParent);
+
+    const addEventForm = el('form', {}, [
+        el('div', {className: 'form-group'}, [ el('input', {type: 'text', id: 'event-title', placeholder: 'Event Title', required: true}) ]),
+        el('div', {className: 'form-group'}, [ el('input', {type: 'date', id: 'event-date', required: true}) ]),
+        el('div', {className: 'form-group'}, [ el('textarea', {id: 'event-description', placeholder: 'Event Description', rows: 2, required: true}) ]),
+        el('button', {type: 'submit', className: 'btn'}, ['Add Event'])
+    ]);
+    addEventForm.addEventListener('submit', handleAddEvent);
     
 
     // View component
@@ -287,24 +343,16 @@ export const renderAdminView = () => {
                     ])
                 ])
             ]),
-            el('div', { className: 'management-card' }, [
-                el('h4', {}, ['Staff Activity Monitoring']),
-                el('div', { className: 'management-list' }, [
-                    el('table', {}, [
-                        el('thead', {}, [el('tr', {}, [
-                            el('th', {}, ['Staff']),
-                            el('th', {}, ['Last Seen']),
-                            el('th', {}, ['Records Submitted']),
-                            el('th', {}, ['Submission Status']),
-                            el('th', {}, ['Action'])
-                        ])]),
-                        renderStaffActivity()
-                    ])
-                ])
+             el('div', { className: 'management-card' }, [
+                el('h4', {}, ['School Calendar Management']),
+                addEventForm,
+                eventListContainer
             ])
         ])
     ]);
     
+    renderEventList(eventListContainer);
+
     // Re-render logic for this view specifically
     view.addEventListener('render-view', () => {
         // This is a bit inefficient, but simple for this architecture.
@@ -318,8 +366,7 @@ export const renderAdminView = () => {
         const newParentList = renderParentList();
         view.querySelector('table:nth-of-type(3) tbody').replaceWith(newParentList);
 
-        const newActivityList = renderStaffActivity();
-        view.querySelector('table:nth-of-type(4) tbody').replaceWith(newActivityList);
+        renderEventList(eventListContainer);
     });
     
     return view;

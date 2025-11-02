@@ -9,7 +9,7 @@ import { api } from "../../api.js";
 
 export const renderParentPortal = () => {
     const state = getState();
-    const { currentParent, students, grades, attendanceRecords, tuitionRecords } = state;
+    const { currentParent, students, grades, attendanceRecords, tuitionRecords, events } = state;
     
     if (!currentParent) return el('div', {}, ['Error: No parent logged in.']);
     
@@ -54,13 +54,27 @@ export const renderParentPortal = () => {
         });
 
         const tuition = tuitionRecords.find(t => t.studentId === student.id);
+        const balance = (tuition?.amountBilled || 0) - (tuition?.amountPaid || 0);
+        
+        let statusText = 'Owing';
+        let statusClass = 'status-owing';
+        if (balance <= 0) {
+            statusText = 'Paid';
+            statusClass = 'status-paid';
+        } else if ((tuition?.amountPaid || 0) > 0) {
+            statusText = 'Partially Paid';
+            statusClass = 'status-partially-paid';
+        }
+        
         const tuitionStatusElement = el('p', {}, [
             'Status: ', 
-            el('span', { className: `status-badge ${tuition?.status === 'Paid' ? 'status-paid' : 'status-owing'}` }, [tuition?.status || ''])
+            el('span', { className: `status-badge ${statusClass}` }, [statusText])
         ]);
-        const tuitionAmountElement = (tuition?.status === 'Owing')
-            ? el('p', {}, ['Amount Due: ', el('strong', {}, [`$${tuition.amount}`])])
-            : null;
+        const tuitionAmountElement = el('div', {className: 'tuition-details'}, [
+            el('span', {}, ['Billed: ', el('strong', {}, [`$${tuition?.amountBilled || 0}`])]),
+            el('span', {}, ['Paid: ', el('strong', {}, [`$${tuition?.amountPaid || 0}`])]),
+            el('span', {}, ['Balance: ', el('strong', {}, [`$${balance}`])]),
+        ]);
 
         return el('div', { className: 'parent-child-card', 'data-student-id': student.id }, [
             el('h4', {}, [student.name]),
@@ -87,7 +101,46 @@ export const renderParentPortal = () => {
         ]);
     }).filter(Boolean);
 
-    const parentDashboard = el('div', { id: 'parent-dashboard-container' }, childCards);
+    // Upcoming Events
+    const studentClasses = students.filter(s => currentParent.studentIds.includes(s.id)).map(s => s.class);
+    const relevantEvents = events.filter(e => e.type === 'school' || studentClasses.includes(e.className))
+        .sort((a,b) => new Date(a.date) - new Date(b.date));
+
+    const eventElements = relevantEvents.length > 0
+        ? relevantEvents.map(event => {
+            const date = new Date(event.date);
+            const month = date.toLocaleString('default', { month: 'short' });
+            const day = date.getDate();
+
+            return el('div', {className: 'event-item'}, [
+                el('div', {className: 'event-date'}, [
+                    el('span', {className: 'month'}, [month]),
+                    el('span', {className: 'day'}, [day])
+                ]),
+                el('div', {className: 'event-details'}, [
+                    el('strong', {}, [event.title]),
+                    el('p', {}, [event.description])
+                ])
+            ])
+        })
+        : [el('p', {}, ['No upcoming events.'])];
+    
+    const eventsCard = el('div', { className: 'management-card'}, [
+        el('h4', {}, [el('span', { className: 'nav-icon' }, ['📅']), ' Upcoming Events']),
+        el('div', { className: 'scrollable-list event-list' }, eventElements)
+    ]);
+    
+    // Messaging Card
+    const messagingCard = el('div', { className: 'management-card clickable'}, [
+        el('h4', {}, [el('span', { className: 'nav-icon' }, ['💬']), ' Messages']),
+        el('p', {}, ['Communicate directly with your children\'s teachers. (Feature coming soon)'])
+    ]);
+
+    const parentDashboard = el('div', { id: 'parent-dashboard-container' }, [
+        ...childCards,
+        eventsCard,
+        messagingCard
+    ]);
 
     const parentPortal = el('div', { id: 'parent-portal' }, [
         parentHeader,

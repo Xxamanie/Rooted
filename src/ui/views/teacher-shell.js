@@ -19,6 +19,7 @@ import { renderTimetableView } from "./teacher/timetable.js";
 import { renderTuitionView } from "./teacher/tuition.js";
 import { renderCreatorView } from "./teacher/creator.js";
 import { renderResultsPanelView } from "./teacher/results-panel.js";
+import { renderMessagingView } from "./teacher/messaging.js";
 
 
 const renderAiSettingsModal = () => {
@@ -123,6 +124,7 @@ const createSidebar = () => {
     const navItems = [
         ...(isCreator ? [{ section: 'creator', icon: '👑', text: 'Creator Panel', exclusive: true }] : []),
         { section: 'dashboard', icon: '🏠', text: 'Dashboard' },
+        { section: 'messaging', icon: '💬', text: 'Messaging' },
         { section: 'analytics', icon: '📊', text: 'Analytics', adminOnly: true },
         { section: 'admin', icon: '⚙️', text: 'Admin Panel', adminOnly: true },
         { section: 'classroom', icon: '🏫', text: 'Virtual Classroom' },
@@ -195,6 +197,7 @@ export const renderTeacherShell = () => {
     // Register all the views with the router
     registerView('creator', renderCreatorView);
     registerView('dashboard', renderDashboardView);
+    registerView('messaging', renderMessagingView);
     registerView('analytics', renderAnalyticsView);
     registerView('admin', renderAdminView);
     registerView('classroom', renderClassroomView);

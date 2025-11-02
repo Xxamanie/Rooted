@@ -1,4 +1,5 @@
 
+
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
@@ -132,6 +133,44 @@ export const api = {
         return Promise.resolve();
     },
 
+    // --- Messaging ---
+    async addMessage(messageData) {
+        // In a real app, the server would assign the ID and timestamp
+        const newMessage = { ...messageData, id: 'MSG-' + Date.now(), timestamp: new Date().toISOString(), read: false };
+        await post('/api/data/messages', newMessage);
+        const { messages } = getState();
+        setState({ messages: [...messages, newMessage] });
+        return newMessage;
+    },
+
+    // --- Resources ---
+    async addResource(resourceData) {
+        const newResource = { ...resourceData, id: 'RES-' + Date.now() };
+        await post('/api/data/resources', newResource);
+        const { resources } = getState();
+        setState({ resources: [...resources, newResource] });
+        return newResource;
+    },
+    async removeResource(id) {
+        await del(`/api/data/resources/${id}`);
+        const { resources } = getState();
+        setState({ resources: resources.filter(r => r.id !== id) });
+    },
+
+    // --- Events ---
+    async addEvent(eventData) {
+        const newEvent = { ...eventData, id: 'EVT-' + Date.now() };
+        await post('/api/data/events', newEvent);
+        const { events } = getState();
+        setState({ events: [...events, newEvent] });
+        return newEvent;
+    },
+    async removeEvent(id) {
+        await del(`/api/data/events/${id}`);
+        const { events } = getState();
+        setState({ events: events.filter(e => e.id !== id) });
+    },
+
     // --- Data mutation APIs ---
     async addStaff(name, role) {
         const newStaff = { id: 'SID-' + Math.floor(1000 + Math.random() * 9000), name, role, lastSeen: 'Never' };
@@ -181,8 +220,8 @@ export const api = {
         return post('/api/actions/save-attendance', { className, records });
     },
     
-    async processTuitionPayment(studentId) {
-        return post('/api/actions/process-tuition', { studentId });
+    async processTuitionPayment(studentId, amount, note) {
+        return post('/api/actions/process-tuition', { studentId, amount, note });
     },
     
     async addExamination(exam) {

@@ -239,7 +239,7 @@ const renderStudyBuddy = (mainContentContainer) => {
 
 const renderStudentDashboard = (mainContentContainer) => {
     const state = getState();
-    const { currentStudent, announcements, examinations, completedExams, essayAssignments, essaySubmissions } = state;
+    const { currentStudent, announcements, examinations, completedExams, essayAssignments, essaySubmissions, resources, events } = state;
 
     // Announcements
     const announcementElements = announcements.length > 0 
@@ -300,9 +300,44 @@ const renderStudentDashboard = (mainContentContainer) => {
         })
         : [el('p', {}, ['No essay assignments for your class yet.'])];
     
-    // Report Card
-    const reportCardContainer = el('div');
-    renderReportCard(currentStudent.id, "Third Term", reportCardContainer); // Example term
+    // Class Resources
+    const classResources = resources.filter(r => r.className === currentStudent.class);
+    const resourceElements = classResources.length > 0
+        ? classResources.map(res => {
+            const icon = res.type === 'link' ? '🔗' : '📄';
+            return el('div', { className: 'resource-item'}, [
+                el('span', {className: 'resource-icon'}, [icon]),
+                el('div', {className: 'resource-details'}, [
+                    el('a', {href: res.content, target: '_blank', title: res.fileName || res.content}, [res.title]),
+                    el('p', {}, [res.subject])
+                ])
+            ]);
+        })
+        : [el('p', {}, ['No resources have been uploaded for your class yet.'])];
+        
+    // Upcoming Events
+    const relevantEvents = events.filter(e => e.type === 'school' || e.className === currentStudent.class)
+        .sort((a,b) => new Date(a.date) - new Date(b.date));
+
+    const eventElements = relevantEvents.length > 0
+        ? relevantEvents.map(event => {
+            const date = new Date(event.date);
+            const month = date.toLocaleString('default', { month: 'short' });
+            const day = date.getDate();
+
+            return el('div', {className: 'event-item'}, [
+                el('div', {className: 'event-date'}, [
+                    el('span', {className: 'month'}, [month]),
+                    el('span', {className: 'day'}, [day])
+                ]),
+                el('div', {className: 'event-details'}, [
+                    el('strong', {}, [event.title]),
+                    el('p', {}, [event.description])
+                ])
+            ])
+        })
+        : [el('p', {}, ['No upcoming events.'])];
+
 
     // Dashboard Grid
     const dashboard = el('div', { className: 'student-dashboard-grid' }, [
@@ -310,14 +345,14 @@ const renderStudentDashboard = (mainContentContainer) => {
              el('h4', {}, [el('span', { className: 'nav-icon' }, ['🤖']), ' Study Buddy']),
              el('p', {}, ['Your personal AI tutor. Ask questions, get explanations, and practice for your exams. Click to start a chat!'])
         ]),
+        el('div', { className: 'student-card clickable' }, [
+             el('h4', {}, [el('span', { className: 'nav-icon' }, ['💬']), ' Messages']),
+             el('p', {}, ['Check for messages from your teachers. (Feature coming soon)'])
+        ]),
         el('div', { className: 'student-card' }, [
              el('h4', {}, [el('span', { className: 'nav-icon' }, ['✍️']), ' Essay Assignments']),
              el('div', { className: 'scrollable-list' }, essayElements)
         ]),
-        el('div', { className: 'student-card' }, [
-             el('h4', {}, [el('span', { className: 'nav-icon' }, ['🎓']), ' My Results']),
-             reportCardContainer
-         ]),
          el('div', { className: 'student-card' }, [
              el('h4', {}, [el('span', { className: 'nav-icon' }, ['🏫']), ' Recent Announcements']),
              el('div', { className: 'scrollable-list' }, announcementElements)
@@ -325,6 +360,14 @@ const renderStudentDashboard = (mainContentContainer) => {
          el('div', { className: 'student-card' }, [
              el('h4', {}, [el('span', { className: 'nav-icon' }, ['📝']), ' Online Examinations']),
              el('div', { className: 'scrollable-list' }, examElements)
+         ]),
+         el('div', { className: 'student-card' }, [
+             el('h4', {}, [el('span', { className: 'nav-icon' }, ['📚']), ' Class Resources']),
+             el('div', { className: 'scrollable-list' }, resourceElements)
+         ]),
+         el('div', { className: 'student-card' }, [
+             el('h4', {}, [el('span', { className: 'nav-icon' }, ['📅']), ' Upcoming Events']),
+             el('div', { className: 'scrollable-list event-list' }, eventElements)
          ]),
     ]);
 
