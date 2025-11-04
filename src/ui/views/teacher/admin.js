@@ -40,19 +40,44 @@ const renderStaffList = () => {
 const renderStudentList = () => {
      const state = getState();
      const handleRemoveStudent = async (id, name) => {
-        const confirmed = await createConfirmationModal(`Are you sure you want to remove student "${name}"?`);
+        const confirmed = await createConfirmationModal(`Are you sure you want to remove student "${name}"? This will also remove all their associated records.`);
         if (confirmed) {
-            showToast('Removing student...', 'info');
+            showToast('Removing student and all associated data...', 'info');
             await api.removeStudent(id);
-            const { students, tuitionRecords, grades } = getState();
-            // Mimic backend cascade delete for a responsive UI
-            setState({
+
+            // Get all relevant state slices
+            const {
+                students,
+                tuitionRecords,
+                grades,
+                parents,
+                attendanceRecords,
+                completedExams,
+                essaySubmissions
+            } = getState();
+
+            // Perform a comprehensive cascade delete on the frontend state for a responsive UI
+            const updatedState = {
                 students: students.filter(s => s.id !== id),
                 tuitionRecords: tuitionRecords.filter(t => t.studentId !== id),
-                grades: grades.filter(g => g.studentId !== id)
-            });
+                grades: grades.filter(g => g.studentId !== id),
+                completedExams: completedExams.filter(c => c.studentId !== id),
+                essaySubmissions: essaySubmissions.filter(es => es.studentId !== id),
+                // For nested arrays, we need to map and filter
+                attendanceRecords: attendanceRecords.map(ar => ({
+                    ...ar,
+                    records: ar.records.filter(r => r.studentId !== id)
+                })),
+                parents: parents.map(p => ({
+                    ...p,
+                    studentIds: p.studentIds.filter(sid => sid !== id)
+                })),
+            };
+
+            setState(updatedState);
+            
             document.dispatchEvent(new CustomEvent('render-view'));
-            showToast('Student removed.', 'success');
+            showToast('Student removed successfully.', 'success');
         }
     };
 

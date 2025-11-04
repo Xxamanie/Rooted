@@ -633,6 +633,8 @@ const startExamTimer = (durationMinutes, examId) => {
         }
 
         if (totalSeconds <= 0) {
+            clearInterval(activeExamTimer); // Bug fix: Stop the timer from running further.
+            activeExamTimer = null;
             submitAndGradeExam(examId);
             showToast('Time is up! Your exam has been submitted automatically.', 'info');
         } else {

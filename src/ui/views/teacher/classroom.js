@@ -410,7 +410,9 @@ export const renderClassroomView = () => {
         attendanceListContainer.querySelectorAll('.attendance-item').forEach(item => {
             const studentId = item.dataset.studentId;
             const activeBtn = item.querySelector('.attendance-status-buttons button.active');
-            const status = activeBtn ? activeBtn.dataset.status : 'Absent';
+            // Bug fix: The default status on render is 'Present', so saving should also default to 'Present'
+            // in the unlikely event an active button isn't found. This prevents incorrect 'Absent' markings.
+            const status = activeBtn ? activeBtn.dataset.status : 'Present';
             if (studentId && status) {
                 records.push({ studentId, status });
             }
