@@ -1,5 +1,6 @@
 
 
+
 import { api } from './src/api.js';
 import { getState, setState } from './src/state.js';
 import { renderLoginView } from './src/ui/views/login.js';
@@ -62,24 +63,57 @@ const renderErrorView = (retryHandler, error = null) => {
         ]);
     }
 
-    const errorView = el('div', { className: 'error-container' }, [
-        el('h2', {}, ['Backend Connection Failed']),
-        el('p', {}, [
-            "The application received a '500 Internal Server Error' from the backend. This indicates a problem with the server's code, not with this frontend application."
-        ]),
-        el('div', { className: 'error-suggestion' }, [
-            el('strong', {}, ['Understanding the 500 Error']),
-            "A 500 error means the server encountered an unexpected problem while trying to fulfill the request for initial data from the ",
+    const isVercelKvError = error?.message?.includes('@vercel/kv') || error?.message?.includes('KV_REST_API_TOKEN');
+
+    let title, primaryMessage, suggestionTitle, suggestionText, fixSteps, isWarning;
+
+    if (isVercelKvError) {
+        title = 'Backend Configuration Error';
+        primaryMessage = "The application failed to connect to its backend database (Vercel KV). This is a server-side configuration issue, not a problem with this frontend application.";
+        suggestionTitle = 'Missing Environment Variables';
+        suggestionText = [
+            "The server is missing required environment variables to connect to its database. The error indicates that ",
+            el('code', {}, ['KV_REST_API_URL']), " and ", el('code', {}, ['KV_REST_API_TOKEN']), " are not set."
+        ];
+        fixSteps = [
+            el('li', {}, ["Go to your project's dashboard on your hosting platform (e.g., Vercel, Render)."]),
+            el('li', {}, ["Navigate to the 'Environment Variables' section in your project settings."]),
+            el('li', {}, ["Add ", el('code', {}, ['KV_REST_API_URL']), " and ", el('code', {}, ['KV_REST_API_TOKEN']), " with the correct values from your Vercel KV database."]),
+            el('li', {}, ["If you haven't set up Vercel KV yet, create one in the Vercel dashboard and copy the provided environment variable snippets."]),
+            el('li', {}, ["Redeploy your backend service for the changes to take effect."]),
+            el('li', {}, ["Once the backend is redeployed, click the 'Retry' button below."])
+        ];
+        isWarning = true;
+    } else {
+        // Default 500 error content
+        title = 'Backend Connection Failed';
+        primaryMessage = "The application received a '500 Internal Server Error' from the backend. This indicates a problem with the server's code, not with this frontend application.";
+        suggestionTitle = 'Understanding the 500 Error';
+        suggestionText = [
+             "A 500 error means the server encountered an unexpected problem while trying to fulfill the request for initial data from the ",
             el('code', {}, ['/api/bootstrap']),
             " endpoint. This is not a frontend bug or a network issue."
-        ]),
+        ];
+        fixSteps = [
+            el('li', {}, ["The definitive solution is to ", el('strong', {}, ['check the server logs.']), " On your hosting platform (e.g., Render.com), inspect the logs for the ", el('code', {}, ['smartschool-online']), " service to find the detailed error or stack trace."]),
+            el('li', {}, ["As a first step, you can also check your browser's DevTools (F12) ", el('strong', {}, ['Network']), " tab. Find the failed request (it will be red) and inspect its 'Response' tab for any clues."]),
+            el('li', {}, ["Once the backend issue is resolved, click the 'Retry' button below."])
+        ];
+        isWarning = false;
+    }
+
+    const errorSuggestion1 = el('div', { className: `error-suggestion ${isWarning ? 'warning' : ''}` }, [
+        el('strong', {}, [suggestionTitle]),
+        ...suggestionText
+    ]);
+
+    const errorView = el('div', { className: 'error-container' }, [
+        el('h2', {}, [title]),
+        el('p', {}, [primaryMessage]),
+        errorSuggestion1,
         el('div', { className: 'error-suggestion' }, [
             el('strong', {}, ['How to Fix This (for Developers):']),
-            el('ol', {}, [
-                el('li', {}, ["The definitive solution is to ", el('strong', {}, ['check the server logs.']), " On your hosting platform (e.g., Render.com), inspect the logs for the ", el('code', {}, ['smartschool-online']), " service to find the detailed error or stack trace."]),
-                el('li', {}, ["As a first step, you can also check your browser's DevTools (F12) ", el('strong', {}, ['Network']), " tab. Find the failed request (it will be red) and inspect its 'Response' tab for any clues."]),
-                el('li', {}, ["Once the backend issue is resolved, click the 'Retry' button below."])
-            ])
+            el('ol', {}, fixSteps)
         ]),
         errorDetails,
         retryBtn

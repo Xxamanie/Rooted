@@ -876,6 +876,15 @@ body {
     margin-bottom: 25px !important;
 }
 
+.error-suggestion.warning {
+    background-color: #fff3e0;
+    border-color: var(--warning-color);
+}
+
+.error-suggestion.warning strong {
+    color: var(--warning-color);
+}
+
 .error-suggestion strong {
     color: var(--info-color);
     display: block;
