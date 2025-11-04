@@ -1,6 +1,3 @@
-
-
-
 import { api } from './src/api.js';
 import { getState, setState } from './src/state.js';
 import { renderLoginView } from './src/ui/views/login.js';
@@ -10,6 +7,15 @@ import { renderParentPortal } from './src/ui/views/parent-portal.js';
 import { el } from './src/ui/dom-utils.js';
 
 const appContainer = document.getElementById('app');
+
+// ✅ GEMINI API KEY CHECK
+const GEMINI_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+
+if (!GEMINI_KEY) {
+  console.error("Gemini API key not found!");
+} else {
+  console.log("Gemini API key loaded successfully.");
+}
 
 const renderBroadcastBanner = () => {
     const { broadcastMessage: broadcast } = getState();
@@ -139,8 +145,7 @@ const init = async () => {
         });
         
         document.addEventListener('state-change', (e) => {
-            const detail = (e as CustomEvent).detail;
-            // Use optional chaining for robustness in case detail is undefined.
+            const detail = (e).detail;
             if (detail?.rerender) {
                 renderApp();
             }
