@@ -883,6 +883,15 @@ body {
     font-size: 1.1em;
 }
 
+.error-suggestion ol {
+    padding-left: 20px;
+    margin-top: 8px;
+}
+
+.error-suggestion ol li {
+    margin-bottom: 5px;
+}
+
 .error-container .btn {
     min-width: 160px;
     padding: 12px 24px;

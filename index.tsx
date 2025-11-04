@@ -52,29 +52,34 @@ const renderErrorView = (retryHandler, error = null) => {
 
     let errorDetails = null;
     if (error) {
-        // If the error message is a full HTML page, it's not useful to display.
-        // We only show the error message itself, not the client-side stack trace
-        // which can be misleading for a server-side issue.
         const errorMessage = (error.message && error.message.trim().toLowerCase().startsWith('<!doctype html'))
             ? 'The server returned a generic HTML error page instead of a specific error message.'
             : (error.message || 'No technical details available.');
             
         errorDetails = el('pre', { className: 'error-details' }, [
-            el('strong', {}, ['Error Reported by Browser:']),
+            el('strong', {}, ['Technical Details from Server:']),
             `\n${errorMessage}`
         ]);
     }
 
     const errorView = el('div', { className: 'error-container' }, [
-        el('h2', {}, ['Backend Server Error']),
+        el('h2', {}, ['Connection to Backend Failed']),
         el('p', {}, [
-            "The application can't load data because the backend server at ",
-            el('code', {}, ['smartschool-online.onrender.com']),
-            " is encountering a critical issue (likely a 500 Internal Server Error)."
+            "The application was unable to load initial data from the backend server. The server responded with a critical '500 Internal Server Error', which indicates a problem with the server's code, not with this frontend application."
+        ]),
+        el('div', { className: 'error-suggestion' }, [
+            el('strong', {}, ['What is a 500 Error?']),
+            "A 500 error means the server encountered an unexpected condition that prevented it from fulfilling the request to load data for the endpoint ",
+            el('code', {}, ['/api/bootstrap']),
+            ". This is not a frontend bug or a network issue."
         ]),
         el('div', { className: 'error-suggestion' }, [
             el('strong', {}, ['What to do next:']),
-            "The server process has likely crashed. To fix this, you need to check the server logs on your hosting platform (e.g., Render.com) to see the specific error that caused the failure."
+            el('ol', {}, [
+                el('li', {}, ["Check the server logs on your hosting platform (e.g., Render.com) for the ", el('code', {}, ['smartschool-online']), " service."]),
+                el('li', {}, ["Look for crash reports or error messages that occurred around the time of this failure."]),
+                el('li', {}, ["Once the backend issue is resolved, click the 'Retry' button below."])
+            ])
         ]),
         errorDetails,
         retryBtn
