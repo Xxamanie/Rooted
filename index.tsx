@@ -63,21 +63,21 @@ const renderErrorView = (retryHandler, error = null) => {
     }
 
     const errorView = el('div', { className: 'error-container' }, [
-        el('h2', {}, ['Connection to Backend Failed']),
+        el('h2', {}, ['Backend Connection Failed']),
         el('p', {}, [
-            "The application was unable to load initial data from the backend server. The server responded with a critical '500 Internal Server Error', which indicates a problem with the server's code, not with this frontend application."
+            "The application received a '500 Internal Server Error' from the backend. This indicates a problem with the server's code, not with this frontend application."
         ]),
         el('div', { className: 'error-suggestion' }, [
-            el('strong', {}, ['What is a 500 Error?']),
-            "A 500 error means the server encountered an unexpected condition that prevented it from fulfilling the request to load data for the endpoint ",
+            el('strong', {}, ['Understanding the 500 Error']),
+            "A 500 error means the server encountered an unexpected problem while trying to fulfill the request for initial data from the ",
             el('code', {}, ['/api/bootstrap']),
-            ". This is not a frontend bug or a network issue."
+            " endpoint. This is not a frontend bug or a network issue."
         ]),
         el('div', { className: 'error-suggestion' }, [
-            el('strong', {}, ['What to do next:']),
+            el('strong', {}, ['How to Fix This (for Developers):']),
             el('ol', {}, [
-                el('li', {}, ["Check the server logs on your hosting platform (e.g., Render.com) for the ", el('code', {}, ['smartschool-online']), " service."]),
-                el('li', {}, ["Look for crash reports or error messages that occurred around the time of this failure."]),
+                el('li', {}, ["The definitive solution is to ", el('strong', {}, ['check the server logs.']), " On your hosting platform (e.g., Render.com), inspect the logs for the ", el('code', {}, ['smartschool-online']), " service to find the detailed error or stack trace."]),
+                el('li', {}, ["As a first step, you can also check your browser's DevTools (F12) ", el('strong', {}, ['Network']), " tab. Find the failed request (it will be red) and inspect its 'Response' tab for any clues."]),
                 el('li', {}, ["Once the backend issue is resolved, click the 'Retry' button below."])
             ])
         ]),

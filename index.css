@@ -886,10 +886,11 @@ body {
 .error-suggestion ol {
     padding-left: 20px;
     margin-top: 8px;
+    line-height: 1.6;
 }
 
 .error-suggestion ol li {
-    margin-bottom: 5px;
+    margin-bottom: 10px;
 }
 
 .error-container .btn {
